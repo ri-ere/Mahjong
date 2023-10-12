@@ -9,7 +9,7 @@ public class GameDirector : MonoBehaviour
     private GameState _gameState = new GameState();
 	private List<Player> players = new List<Player>();
 	private int oya;
-	private int nowWind;
+	private int nowWind;//gamestate로 옮기기
 	public GamePlay gamePlayObject;
     void Start()
     {

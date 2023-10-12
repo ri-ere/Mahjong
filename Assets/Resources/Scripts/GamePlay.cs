@@ -9,8 +9,8 @@ public class GamePlay : MonoBehaviour
     private GameDirector _gameDirector;
     private bool oyaWin = false;
     private bool gameEnd = false;
-    private int oya;
-    private int nowWind;
+    private int oya;//gamestate로 옮기기
+    private int nowWind;//gamestate로 옮기기
     private int nowPlayer;
     private List<Player> players = new List<Player>();
     private List<List<string>> hands = new List<List<string>>();
@@ -41,50 +41,50 @@ public class GamePlay : MonoBehaviour
     
     void Update()
     {
+        //손패를 받았을때 14개의 패로 승리 가능인지 확인?
+        //
         //if(_gameState.isGameEnd()) Debug.Log("end");
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            nowPlayer %= 4;
             string tile = tiles.tsumo();//타일에서 뽑기
             hands[nowPlayer].Add(tile);//손패에 추가
             hands[nowPlayer] = HandArrange(hands[nowPlayer]);//손패 정리
             _tileDisplay.tsumoDisplay(tile, nowPlayer);//츠모한거 오브젝트 생성
 
             
-            
-            //커츠인거 확인하는 테스트 코드
-            string triplets = "";
-            List<string> t = _handChecker.whatIsTriplet(hands[nowPlayer]);
-            foreach (var triplet in t)
-            {
-                triplets += triplet + ", ";
-            }
-            Debug.Log("triplets : " + triplets);
-            //또이츠인거 확인하는 테스트 코드
-            string pairs = "";
-            List<string> p = _handChecker.whatIsPair(hands[nowPlayer]);
-            foreach (var pair in p)
-            {
-                pairs += pair + ", ";
-            }
-            Debug.Log("pairs : " + pairs);
-            //슌츠인거 확인하는 테스트 코드
-            string sequence = "";
-            List<string> s = _handChecker.whatIsSequence(hands[nowPlayer]);
-            foreach (var pair in s)
-            {
-                sequence += pair + ", ";
-            }
-            Debug.Log("sequence : " + sequence);
-            
-            
-            
             //플레이어 0번 아니면 바로 타패
             if (nowPlayer != 0)
             {
                 dahai(tile, nowPlayer);
             }
-            nowPlayer++;
+            
+            //커츠인거 확인하는 테스트 코드
+            string tripletStr = "";
+            List<string> triplet = _handChecker.WhatIsTriplet(hands[nowPlayer]);
+            foreach (var t in triplet)
+            {
+                tripletStr += t + ", ";
+            }
+            Debug.Log("triplets : " + tripletStr);
+            //또이츠인거 확인하는 테스트 코드
+            string pairStr = "";
+            List<string> pair = _handChecker.WhatIsPair(hands[nowPlayer]);
+            foreach (var p in pair)
+            {
+                pairStr += p + ", ";
+            }
+            Debug.Log("pairs : " + pairStr);
+            //슌츠인거 확인하는 테스트 코드
+            string sequenceStr = "";
+            List<string> sequence = _handChecker.WhatIsSequence(hands[nowPlayer]);
+            foreach (var s in sequence)
+            {
+                sequenceStr += s + ", ";
+            }
+            Debug.Log("sequence : " + sequenceStr);
+            
+            ++nowPlayer;
+            nowPlayer %= 4;
         }
     }
     
@@ -118,7 +118,6 @@ public class GamePlay : MonoBehaviour
         hands[_user] = HandArrange(hands[_user]);//손패 정리
         _tileDisplay.handDisplay(hands[_user], _user);
     }
-    
     
     
     //게임 끝났을때 점수 계산
