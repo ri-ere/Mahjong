@@ -83,6 +83,33 @@ public class HandChecker
                     sequences.Add(numbers[i] + numbers[i + 1] + numbers[i + 2]);
         return sequences;
     }
+    //슌츠를 위한 뭔가 함수
+    List<List<string>> possibleSequence(List<string> tiles)
+    {
+        List<string> numbers = (from tmp in tiles where tmp.Length >= 2 select tmp[..2]).ToList();//아카도라 삭제 및 숫자만
+        List<string> possibility = WhatCanBeSequence(numbers);//가능한 슌츠 모두
+        List<List<string>> sequence = new List<List<string>>();//반환용 변수
+        for (int i = 0; i < possibility.Count; ++i)
+        {
+            List<string> tmp = numbers;
+            string seq = possibility[0];
+            sequence[i].Add(seq);
+            while (true)
+            {
+                tmp.RemoveAt(tmp.IndexOf(seq[..2]));
+                tmp.RemoveAt(tmp.IndexOf(seq[2..4]));
+                tmp.RemoveAt(tmp.IndexOf(seq[4..6]));
+                tmp = WhatCanBeSequence(tmp);
+                if (tmp.Count != 0)
+                {
+                    sequence = tmp[0];
+                    continue;
+                }
+                break;
+            }
+        }
+        return sequence;
+    }
     //현재 손패에서 가능한 모든 슌츠들
     public List<string> EverySequence(List<string> tiles)
     {
