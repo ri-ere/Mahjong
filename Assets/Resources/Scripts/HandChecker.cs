@@ -102,7 +102,7 @@ public class HandChecker
                 tmp = WhatCanBeSequence(tmp);
                 if (tmp.Count != 0)
                 {
-                    sequence = tmp[0];
+                    sequence.Add(tmp);
                     continue;
                 }
                 break;
