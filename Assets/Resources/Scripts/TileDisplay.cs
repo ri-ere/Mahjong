@@ -28,7 +28,7 @@ public class TileDisplay : MonoBehaviour
         //타일 생성하는 반복문
         foreach (string tile in _hand)
         {
-            this.tileSpawner(tile, _user, new Vector3(xPos, -4f, 0), new Vector3(0.75f, 0.75f, 0), userHand);
+            tileSpawner(tile, _user, new Vector3(xPos, -4f, 0), new Vector3(0.75f, 0.75f, 0), userHand);
             xPos += 0.5f;
         }
         //유저 위치에 맞게 방향 돌리기
@@ -42,20 +42,29 @@ public class TileDisplay : MonoBehaviour
         userHand.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
         float[] xPos = {4.0f, 4.0f, -4.0f, -4.0f};
         float[] yPos = {-4.0f, 4.0f, 4.0f, -4.0f};
-        this.tileSpawner(_tile, _user, new Vector3(xPos[_user], yPos[_user], 0), new Vector3(0.75f, 0.75f, 0), userHand);
+        tileSpawner(_tile, _user, new Vector3(xPos[_user], yPos[_user], 0), new Vector3(0.75f, 0.75f, 0), userHand);
         //유저 위치에 맞게 방향 돌리기 
         userHand.transform.rotation = Quaternion.Euler(new Vector3(0, 0, _user * 90));
     }
     public void dahaiDisplay(string _tile,int _user, int howMany)
     {
         string userName = "User" + _user + "Tsumo";
+        bool isRiichiLine = false;
+        bool isRiichi = false;
         GameObject userDiscard = GameObject.Find(userName);
         userDiscard.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
         float[] xPos = {-1.25f, -1.7f, -2.15f, -2.6f, -3.05f, -3.5f};
+        float[] xRiichiPos = {-1.25f, -1.7f, -2.15f, -2.6f, -3.05f, -3.5f};
+        float[] yRiichiPos = {-1.25f, -1.7f, -2.15f, -2.6f, -3.05f, -3.5f};
+
         float[] yPos = {-0.83f, -0.5f, -0.17f, 0.16f, 0.5f, 0.83f};
         int x = howMany / 6;
         int y = howMany % 6;
-        this.tileSpawner(_tile, 0, new Vector3(yPos[y], xPos[x], 0), new Vector3(0.5f, 0.5f, 0), userDiscard);
+        if (isRiichi)
+        {
+            
+        }
+        tileSpawner(_tile, 0, new Vector3(yPos[y], xPos[x], 0), new Vector3(0.5f, 0.5f, 0), userDiscard);
         //유저 위치에 맞게 방향 돌리기
         userDiscard.transform.rotation = Quaternion.Euler(new Vector3(0, 0, _user * 90));
     }
@@ -72,3 +81,4 @@ public class TileDisplay : MonoBehaviour
         tileSpawner(_tile, isBack, new Vector3(yPos[howMany], 4.55f, 0), new Vector3(1f, 1f, 0), dora);
     }
 }
+//ㄱ 장르 ab커플링

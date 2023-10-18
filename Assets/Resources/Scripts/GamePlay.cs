@@ -7,6 +7,7 @@ public class GamePlay : MonoBehaviour
     private List<string> dora = new List<string>();
     private TileDisplay _tileDisplay;
     private GameDirector _gameDirector;
+    private PointCalculator _pointCalculator;
     private bool oyaWin = false;
     private bool gameEnd = false;
     private int oya;//gamestate로 옮기기
@@ -20,6 +21,7 @@ public class GamePlay : MonoBehaviour
     {
         _tileDisplay = GameObject.Find("TileDisplay").GetComponent<TileDisplay>();
         _gameDirector = GameObject.Find("GameDirector").GetComponent<GameDirector>();
+        _pointCalculator = GameObject.Find("PointCalculator").GetComponent<PointCalculator>();
         players = _gameDirector.getPlayers();
         
         oya = _gameDirector.getOya();
@@ -37,13 +39,15 @@ public class GamePlay : MonoBehaviour
             discardNums.Add(-1);
             _tileDisplay.handDisplay(hands[i], i);
         }
+
+        _pointCalculator.PlayerRiichiPointChanger(0);
     }
-    
     void Update()
     {
         //손패를 받았을때 14개의 패로 승리 가능인지 확인?
         //
         //if(_gameState.isGameEnd()) Debug.Log("end");
+        //타패 체크
         if (Input.GetKeyDown(KeyCode.Space))
         {
             string tile = tiles.tsumo();//타일에서 뽑기
@@ -94,34 +98,15 @@ public class GamePlay : MonoBehaviour
         _tileDisplay.doraDisplay(dora[2], 2, false);
         _tileDisplay.doraDisplay(dora[3], 3, false);
         _tileDisplay.doraDisplay(dora[4], 4, false);
-        
     }
     private void makeKanDora(int num)
     {
         _tileDisplay.doraDisplay(dora[num], num, true);
         
     }
-    //위에 핸드 추가하는 함수에 for문 1부터 시작으로 바꿔야함
-    private void makeTestHand()
+    private void DoRiichi(string tile, int user)
     {
-        List<string> testhand = new List<string>();
-        testhand.Add("m5r");
-        testhand.Add("m5");
-        testhand.Add("m5");
-        testhand.Add("m1");
-        testhand.Add("m2");
-        testhand.Add("m3");
-        testhand.Add("m2");
-        testhand.Add("s1");
-        testhand.Add("s2");
-        testhand.Add("s4");
-        testhand.Add("p3");
-        testhand.Add("m7");
-        testhand.Add("m4");
-        hands.Add(testhand);
-        hands[0] = HandArrange(hands[0]);//손패 정리
-        discardNums.Add(-1);
-        _tileDisplay.handDisplay(hands[0], 0);
+        
     }
     public void dahai(string _tileName, int _user)
     {
@@ -176,8 +161,31 @@ public class GamePlay : MonoBehaviour
     {
         
     }
+    
+    //위에 핸드 추가하는 함수에 for문 1부터 시작으로 바꿔야함
+    private void makeTestHand()
+    {
+        List<string> testhand = new List<string>();
+        testhand.Add("m5r");
+        testhand.Add("m5");
+        testhand.Add("m5");
+        testhand.Add("m1");
+        testhand.Add("m2");
+        testhand.Add("m3");
+        testhand.Add("m2");
+        testhand.Add("s1");
+        testhand.Add("s2");
+        testhand.Add("s4");
+        testhand.Add("p3");
+        testhand.Add("m7");
+        testhand.Add("m4");
+        hands.Add(testhand);
+        hands[0] = HandArrange(hands[0]);//손패 정리
+        discardNums.Add(-1);
+        _tileDisplay.handDisplay(hands[0], 0);
+    }
     //전체 핸드 로그로 확인하는 함수
-    void handCheck(List<string> _hand)
+    private void handCheck(List<string> _hand)
     {
         string tileToPrint = "";
         foreach (string tile in _hand)

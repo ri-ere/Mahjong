@@ -11,4 +11,9 @@ public class Player
         this.ID = ID;
         score = 25000;
     }
+
+    public void scoreChange()
+    {
+        score += 1000;
+    }
 }
