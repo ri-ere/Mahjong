@@ -26,7 +26,7 @@ public class GamePlay : MonoBehaviour
         nowWind = _gameDirector.getNowWind();
         nowPlayer = oya;
         dora = tiles.drawDora();//도라
-        
+        makeFirstDora();
         
         //손패
         //makeTestHand();
@@ -87,7 +87,20 @@ public class GamePlay : MonoBehaviour
             nowPlayer %= 4;
         }
     }
-    
+    private void makeFirstDora()
+    {
+        _tileDisplay.doraDisplay(dora[0], 0, true);
+        _tileDisplay.doraDisplay(dora[1], 1, false);
+        _tileDisplay.doraDisplay(dora[2], 2, false);
+        _tileDisplay.doraDisplay(dora[3], 3, false);
+        _tileDisplay.doraDisplay(dora[4], 4, false);
+        
+    }
+    private void makeKanDora(int num)
+    {
+        _tileDisplay.doraDisplay(dora[num], num, true);
+        
+    }
     //위에 핸드 추가하는 함수에 for문 1부터 시작으로 바꿔야함
     private void makeTestHand()
     {
@@ -155,8 +168,14 @@ public class GamePlay : MonoBehaviour
         }
         return tmp;
     }
-    
-    
+    public void DoChi()
+    {
+        
+    }
+    public void DoPong()
+    {
+        
+    }
     //전체 핸드 로그로 확인하는 함수
     void handCheck(List<string> _hand)
     {

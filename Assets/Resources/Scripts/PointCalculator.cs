@@ -7,6 +7,7 @@ using TMPro;
 public class PointCalculator : MonoBehaviour
 {
     //플레이어 4인 점수
+    
     int user0Point;
     int user1Point;
     int user2Point;

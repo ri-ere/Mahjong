@@ -19,8 +19,8 @@ public class TileDisplay : MonoBehaviour
         float xPos = -3.0f;
         string handName = "User" + _user + "Hand";
         GameObject userHand = GameObject.Find(handName);
+        //이전에 생성된 타일들 삭제 및 로테이션 초기화
         userHand.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
-        //이전에 생성된 타일들 삭제
         foreach (var child in userHand.GetComponentsInChildren<Transform>())
         {
             if(child != userHand.transform) Destroy(child.gameObject); // 하위 오브젝트 제거
@@ -53,10 +53,22 @@ public class TileDisplay : MonoBehaviour
         userDiscard.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
         float[] xPos = {-1.25f, -1.7f, -2.15f, -2.6f, -3.05f, -3.5f};
         float[] yPos = {-0.83f, -0.5f, -0.17f, 0.16f, 0.5f, 0.83f};
-        int _x = howMany / 6;
-        int _y = howMany % 6;
-        this.tileSpawner(_tile, 0, new Vector3(yPos[_y], xPos[_x], 0), new Vector3(0.5f, 0.5f, 0), userDiscard);
+        int x = howMany / 6;
+        int y = howMany % 6;
+        this.tileSpawner(_tile, 0, new Vector3(yPos[y], xPos[x], 0), new Vector3(0.5f, 0.5f, 0), userDiscard);
         //유저 위치에 맞게 방향 돌리기
         userDiscard.transform.rotation = Quaternion.Euler(new Vector3(0, 0, _user * 90));
+    }
+    public void doraDisplay(string _tile, int howMany, bool isOpen)
+    {
+        //도라는 유저 5로 생성해서 타일 생성기에서 뒷면으로 만들기
+        int isBack;
+        if (isOpen) isBack = 0;
+        else isBack = 5;
+        GameObject dora = GameObject.Find("Dora");
+        dora.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
+        //xPos는 전부 같아서 직접 입력
+        float[] yPos = {5.33f, 5.99f, 6.65f, 7.31f, 7.97f};
+        tileSpawner(_tile, isBack, new Vector3(yPos[howMany], 4.55f, 0), new Vector3(1f, 1f, 0), dora);
     }
 }
