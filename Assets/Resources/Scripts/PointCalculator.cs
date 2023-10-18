@@ -7,11 +7,9 @@ using TMPro;
 public class PointCalculator : MonoBehaviour
 {
     //플레이어 4인 점수
-    
-    int user0Point;
-    int user1Point;
-    int user2Point;
-    int user3Point;
+    private int[] userPoint = new Int[];
+
+    private TextMeshProUGUI[] userPointText;
     //점수용 변수
     public TextMeshProUGUI user0PointText;
     public TextMeshProUGUI user1PointText;
@@ -35,5 +33,18 @@ public class PointCalculator : MonoBehaviour
         user1PointText.text = user1Point.ToString();
         user2PointText.text = user2Point.ToString();
         user3PointText.text = user3Point.ToString();
+    }
+    private void ChangeUserPoint()
+    {
+        user0PointText.text = user0Point.ToString();
+        user1PointText.text = user1Point.ToString();
+        user2PointText.text = user2Point.ToString();
+        user3PointText.text = user3Point.ToString();
+    }
+
+    public void UserWin(int user)
+    {
+        string userName = "user" + user + "name";
+        
     }
 }
