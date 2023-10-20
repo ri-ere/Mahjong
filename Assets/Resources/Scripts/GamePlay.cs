@@ -19,7 +19,9 @@ public class GamePlay : MonoBehaviour
     private List<Player> players = new List<Player>();
     private List<List<string>> hands = new List<List<string>>();
     private List<int> discardNums = new List<int>();
-    private float _userTime = 0;
+    private float _userTime;
+    private static float _waitTime;
+    private static float _notMyTurnTime;
     private bool _isMyTurn;
     private string _nowTsumoTile;
 
@@ -34,6 +36,9 @@ public class GamePlay : MonoBehaviour
         oya = _gameDirector.getOya();
         nowWind = _gameDirector.getNowWind();
         nowPlayer = oya;
+        _userTime = 0;
+        _waitTime = 5.9f;
+        _notMyTurnTime = -1.0f;
         if (nowPlayer == 0) _isMyTurn = true;
         else _isMyTurn = false;
         dora = tiles.drawDora();//도라
@@ -49,9 +54,19 @@ public class GamePlay : MonoBehaviour
         }
 
         _pointCalculator.PlayerRiichiPointChanger(0);//점수 변경 테스트용
+
+        StartCoroutine(MyUpdateCRT());
     }
 
-    private void Update()
+    private IEnumerator MyUpdateCRT()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1f);
+            MyUpdate();
+        }
+    }
+    private void MyUpdate()
     {
         if (_userTime != 0)
         {
@@ -70,21 +85,17 @@ public class GamePlay : MonoBehaviour
                 }
                 else
                 {
-                    _userTime -= Time.deltaTime;
+                    _userTime -= 1.0f;
                 }
             }
             //내 턴이 아닐때 시행
             else
             {
+                if (_userTime == _notMyTurnTime) return;
                 _nowTime.text = "";
-                
-                dahai(_nowTsumoTile, nowPlayer);
-                nowPlayer = ++nowPlayer % 4;
-                if (nowPlayer == 0) _isMyTurn = true;
-                else _isMyTurn = false;
-                _userTime = 0;
+                _userTime = _notMyTurnTime;
+                StartCoroutine(TimeOverDahai(_nowTsumoTile));
             }
-            
         }
         else
         {
@@ -92,24 +103,18 @@ public class GamePlay : MonoBehaviour
             hands[nowPlayer].Add(_nowTsumoTile);//손패에 추가
             hands[nowPlayer] = HandArrange(hands[nowPlayer]);//손패 정리
             _tileDisplay.tsumoDisplay(_nowTsumoTile, nowPlayer);//츠모한거 오브젝트 생성
-            _userTime = 5.9f;
+            _userTime = _waitTime;
         }
-        
-        
-        
-        
-        
         //손패를 받았을때 14개의 패로 승리 가능인지 확인?
         //if(_gameState.isGameEnd()) Debug.Log("end");
         //타패 체크
     }
 
-    private IEnumerator TimeOverDahai(string tile, int nowPlayer)
+    private IEnumerator TimeOverDahai(string tile)
     {
-        Debug.Log("not my turn");
+        nowPlayer = ++nowPlayer % 4;
         yield return new WaitForSeconds(2f);
         dahai(tile, nowPlayer);
-        nowPlayer = ++nowPlayer % 4;
         if (nowPlayer == 0) _isMyTurn = true;
         else _isMyTurn = false;
         _userTime = 0;
