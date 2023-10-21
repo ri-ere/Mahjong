@@ -9,6 +9,8 @@ TagManager:
   - 2
   - 3
   - 5
+  - Discard
+  - Dora
   layers:
   - Default
   - TransparentFX

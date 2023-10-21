@@ -5,24 +5,23 @@ using TMPro;
 public class GamePlay : MonoBehaviour
 {
     private HandChecker _handChecker = new HandChecker();
-    private Tiles tiles = new Tiles();
-    private List<string> dora = new List<string>();
+    private Tiles _tiles = new Tiles();
+    private List<string> _dora = new List<string>();
     private TileDisplay _tileDisplay;
     private GameDirector _gameDirector;
     private PointCalculator _pointCalculator;
     private TextMeshProUGUI _nowTime;
-    private bool oyaWin = false;
-    private bool gameEnd = false;
-    private int oya;//gamestate로 옮기기
-    private int nowWind;//gamestate로 옮기기
-    private int nowPlayer;
-    private List<Player> players = new List<Player>();
-    private List<List<string>> hands = new List<List<string>>();
-    private List<int> discardNums = new List<int>();
-    private float _userTime;
-    private static float _waitTime;
-    private static float _notMyTurnTime;
+    private bool _oyaWin = false;
+    private bool _gameEnd = false;//gamestate로 옮기기
+    private int _nowWind;//gamestate로 옮기기
+    private int _nowPlayer;
+    private List<Player> _players = new List<Player>();
+    private List<List<string>> _hands = new List<List<string>>();
+    private readonly List<int> _discardNums = new List<int>();
     private bool _isMyTurn;
+    private int _userTime = 0;
+    private const int WaitTime = 5;
+    private bool _isTurnReady = false;
     private string _nowTsumoTile;
 
     private void Start()
@@ -31,36 +30,22 @@ public class GamePlay : MonoBehaviour
         _gameDirector = GameObject.Find("GameDirector").GetComponent<GameDirector>();
         _pointCalculator = GameObject.Find("PointCalculator").GetComponent<PointCalculator>();
         _nowTime = GameObject.Find("UserTime").GetComponent<TextMeshProUGUI>();
-        players = _gameDirector.getPlayers();
+        _nowTime.text = "";
         
-        oya = _gameDirector.getOya();
-        nowWind = _gameDirector.getNowWind();
-        nowPlayer = oya;
-        _userTime = 0;
-        _waitTime = 5.9f;
-        _notMyTurnTime = -1.0f;
-        if (nowPlayer == 0) _isMyTurn = true;
-        else _isMyTurn = false;
-        dora = tiles.drawDora();//도라
-        makeFirstDoraDisplay();
+        _players = _gameDirector.getPlayers();
+        _nowWind = _gameDirector.getNowWind();
+        _nowPlayer = _gameDirector.getOya();
+        _isMyTurn = _nowPlayer == 0;
         
-        //손패 만들기
-        for (int i = 0; i < 4; ++i)
-        {
-            hands.Add(tiles.getFirstHand());
-            hands[i] = HandArrange(hands[i]);//손패 정리
-            discardNums.Add(-1);
-            _tileDisplay.handDisplay(hands[i], i);
-        }
-
-        _pointCalculator.PlayerRiichiPointChanger(0);//점수 변경 테스트용
-
-        StartCoroutine(MyUpdateCRT());
+        _dora = _tiles.drawDora();//도라 뽑기
+        MakeFirstDoraDisplay();//도라 표시
+        MakeFirstHand();//첫 손패 주기
+        StartCoroutine(MyUpdateCrt());//게임 시작
     }
 
-    private IEnumerator MyUpdateCRT()
+    private IEnumerator MyUpdateCrt()
     {
-        while (true)
+        while (!_gameEnd)
         {
             yield return new WaitForSeconds(1f);
             MyUpdate();
@@ -68,97 +53,102 @@ public class GamePlay : MonoBehaviour
     }
     private void MyUpdate()
     {
-        if (_userTime != 0)
+        //손패를 받았을때 14개의 패로 승리 가능인지 확인?
+        if(_isTurnReady)
         {
-            //내 턴일때 시행
-            if (_isMyTurn)
+            if(_isMyTurn)
             {
-                _nowTime.text = ((int)_userTime).ToString();
-                //시간이 전부 지났을때 실행
-                if (_userTime < 1.0f)
+                _nowTime.text = _userTime.ToString();
+                
+                //시간 끝나면 츠모한거 버리기
+                if(_userTime < 1)
                 {
-                    dahai(_nowTsumoTile, nowPlayer);
-                    nowPlayer = ++nowPlayer % 4;
-                    if (nowPlayer == 0) _isMyTurn = true;
-                    else _isMyTurn = false;
-                    _userTime = 0;
+                    Dahai(_nowTsumoTile, _nowPlayer);
                 }
                 else
                 {
-                    _userTime -= 1.0f;
+                    --_userTime;
                 }
             }
-            //내 턴이 아닐때 시행
             else
             {
-                if (_userTime == _notMyTurnTime) return;
                 _nowTime.text = "";
-                _userTime = _notMyTurnTime;
-                StartCoroutine(TimeOverDahai(_nowTsumoTile));
+                StartCoroutine(NotMyTurnDahai());
             }
         }
         else
         {
-            _nowTsumoTile = tiles.tsumo();//타일에서 뽑기
-            hands[nowPlayer].Add(_nowTsumoTile);//손패에 추가
-            hands[nowPlayer] = HandArrange(hands[nowPlayer]);//손패 정리
-            _tileDisplay.tsumoDisplay(_nowTsumoTile, nowPlayer);//츠모한거 오브젝트 생성
-            _userTime = _waitTime;
+            _nowTsumoTile = _tiles.tsumo();//타일에서 뽑기
+            _hands[_nowPlayer].Add(_nowTsumoTile);//손패에 추가
+            _hands[_nowPlayer] = HandArrange(_hands[_nowPlayer]);//손패 정리
+            _tileDisplay.tsumoDisplay(_nowTsumoTile, _nowPlayer);//츠모한거 오브젝트 생성
+            _userTime = WaitTime;
+            _isTurnReady = true;
+            _nowTime.text = _isMyTurn ? _userTime.ToString() : "";
         }
-        //손패를 받았을때 14개의 패로 승리 가능인지 확인?
-        //if(_gameState.isGameEnd()) Debug.Log("end");
-        //타패 체크
     }
 
-    private IEnumerator TimeOverDahai(string tile)
+    private void MakeFirstHand()
     {
-        nowPlayer = ++nowPlayer % 4;
-        yield return new WaitForSeconds(2f);
-        dahai(tile, nowPlayer);
-        if (nowPlayer == 0) _isMyTurn = true;
-        else _isMyTurn = false;
-        _userTime = 0;
+        //손패 만들기
+        for (int i = 0; i < 4; ++i)
+        {
+            _hands.Add(_tiles.getFirstHand());
+            _hands[i] = HandArrange(_hands[i]);//손패 정리
+            _discardNums.Add(-1);
+            _tileDisplay.handDisplay(_hands[i], i);
+        }
     }
-    private void makeFirstDoraDisplay()
+    private IEnumerator NotMyTurnDahai()
     {
-        _tileDisplay.doraDisplay(dora[0], 0, true);
-        _tileDisplay.doraDisplay(dora[1], 1, false);
-        _tileDisplay.doraDisplay(dora[2], 2, false);
-        _tileDisplay.doraDisplay(dora[3], 3, false);
-        _tileDisplay.doraDisplay(dora[4], 4, false);
+        yield return new WaitForSeconds(0.5f);
+        Dahai(_nowTsumoTile, _nowPlayer);
     }
-    private void makeKanDoraDisplay(int num)
+    public void Dahai(string tileName, int user)
     {
-        _tileDisplay.doraDisplay(dora[num], num, true);
+        //뒷면엔 클릭할때 이루어지는 상호작용이 없어서 안버려짐
+        _hands[user].RemoveAt(_hands[user].IndexOf(tileName));
+        _tileDisplay.dahaiDisplay(tileName, user, ++_discardNums[user]);
+        _hands[user] = HandArrange(_hands[user]);//손패 정리
+        _tileDisplay.handDisplay(_hands[user], user);
+        ++_nowPlayer;
+        _nowPlayer %= 4;
+        _isMyTurn = _nowPlayer == 0;
+        _nowTime.text = "";
+        _isTurnReady = false;
+    }
+    private void MakeFirstDoraDisplay()
+    {
+        _tileDisplay.doraDisplay(_dora[0], 0, true);
+        _tileDisplay.doraDisplay(_dora[1], 1, false);
+        _tileDisplay.doraDisplay(_dora[2], 2, false);
+        _tileDisplay.doraDisplay(_dora[3], 3, false);
+        _tileDisplay.doraDisplay(_dora[4], 4, false);
+    }
+    private void MakeKanDoraDisplay(int num)
+    {
+        _tileDisplay.doraDisplay(_dora[num], num, true);
         
     }
     private void DoRiichi(string tile, int user)
     {
         
     }
-    public void dahai(string _tileName, int _user)
-    {
-        //뒷면엔 클릭할때 이루어지는 상호작용이 없어서 안버려짐
-        hands[_user].RemoveAt(hands[_user].IndexOf(_tileName));
-        _tileDisplay.dahaiDisplay(_tileName, _user, ++discardNums[_user]);
-        hands[_user] = HandArrange(hands[_user]);//손패 정리
-        _tileDisplay.handDisplay(hands[_user], _user);
-    }
     
     
     //게임 끝났을때 점수 계산
     public void GameEnd()
     {
-        gameEnd = true;
+        _gameEnd = true;
     }
 
-    public bool isOyaWin()
+    public bool IsOyaWin()
     {
-        return oyaWin;
+        return _oyaWin;
     }
-    public bool isGameEnd()
+    public bool IsGameEnd()
     {
-        return gameEnd;
+        return _gameEnd;
     }
     //핸드 위치 변경하는 함수
     private static List<string> HandArrange(List<string> hand)
@@ -189,9 +179,14 @@ public class GamePlay : MonoBehaviour
     {
         
     }
+
+    public bool GetIsMyTurn()
+    {
+        return _isMyTurn;
+    }
     
     //위에 핸드 추가하는 함수에 for문 1부터 시작으로 바꿔야함
-    private void makeTestHand()
+    private void MakeTestHand()
     {
         List<string> testhand = new List<string>();
         testhand.Add("m5r");
@@ -207,16 +202,16 @@ public class GamePlay : MonoBehaviour
         testhand.Add("p3");
         testhand.Add("m7");
         testhand.Add("m4");
-        hands.Add(testhand);
-        hands[0] = HandArrange(hands[0]);//손패 정리
-        discardNums.Add(-1);
-        _tileDisplay.handDisplay(hands[0], 0);
+        _hands.Add(testhand);
+        _hands[0] = HandArrange(_hands[0]);//손패 정리
+        _discardNums.Add(-1);
+        _tileDisplay.handDisplay(_hands[0], 0);
     }
     //전체 핸드 로그로 확인하는 함수
-    private void handCheck(List<string> _hand)
+    private void HandCheck(List<string> hand)
     {
         string tileToPrint = "";
-        foreach (string tile in _hand)
+        foreach (string tile in hand)
         {
             tileToPrint += tile + ", ";
         }

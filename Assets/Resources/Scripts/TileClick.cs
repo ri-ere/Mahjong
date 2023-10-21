@@ -30,11 +30,11 @@ public class TileClick : MonoBehaviour
 
     void Update()
     {
-        if(isDoubleClicked)
+        if(isDoubleClicked && _gamePlay.GetIsMyTurn() && tag.Equals("0"))
         {
             string[] tile = name.Split("(");//오브젝트가 ~~(Clone)으로 생성돼서 "("를 기준으로 자름
             int user = int.Parse(tag);
-            if(user == 0) _gamePlay.dahai(tile[0], user);//잘린 문자열이 0번에 들어있어서 tile[0]을 넘김
+            if(user == 0) _gamePlay.Dahai(tile[0], user);//잘린 문자열이 0번에 들어있어서 tile[0]을 넘김
             isDoubleClicked = false;
         }
     }

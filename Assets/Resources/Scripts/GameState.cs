@@ -16,7 +16,7 @@ public class GameState
     private int user3Wind;
     
     private bool gameEnd = false;
-    public bool isGameEnd()
+    public bool IsGameEnd()
     {
         return gameEnd;
     }

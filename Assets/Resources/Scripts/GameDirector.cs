@@ -36,12 +36,12 @@ public class GameDirector : MonoBehaviour
     {
 	    // StartCoroutine(UpdateCoroutine());
 	    //게임 시작
-	    if (gamePlayObject.isGameEnd())
+	    if (gamePlayObject.IsGameEnd())
 	    {
 		    Debug.Log("game end");
 		    //게임 끝났을때
 		    gamePlayObject.GameEnd();
-		    if (!gamePlayObject.isOyaWin())
+		    if (!gamePlayObject.IsOyaWin())
 		    {
 			    if (++oya == 4)
 			    {
