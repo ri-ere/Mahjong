@@ -1,19 +1,16 @@
-using System.Collections;
-using System;
-using System.Collections.Generic;
 
 public class Player
 {
-    private int ID;
-    private int score;
+    private int _id;
+    private int _score;
     public Player(int ID)
     {
-        this.ID = ID;
-        score = 25000;
+        _id = ID;
+        _score = 25000;
     }
 
-    public void scoreChange()
+    public void ScoreChange()
     {
-        score += 1000;
+        _score += 1000;
     }
 }

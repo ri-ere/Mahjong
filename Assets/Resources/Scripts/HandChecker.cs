@@ -84,7 +84,7 @@ public class HandChecker
         return sequences;
     }
     //슌츠를 위한 뭔가 함수
-    List<List<string>> possibleSequence(List<string> tiles)
+    List<List<string>> PossibleSequence(List<string> tiles)
     {
         List<string> numbers = (from tmp in tiles where tmp.Length >= 2 select tmp[..2]).ToList();//아카도라 삭제 및 숫자만
         List<string> possibility = WhatCanBeSequence(numbers);//가능한 슌츠 모두

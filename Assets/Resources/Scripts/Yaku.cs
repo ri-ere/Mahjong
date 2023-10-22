@@ -5,7 +5,7 @@ using System;
 public class Yaku
 {
     
-    bool isTenpai(List<string> hand)
+    bool IsTenpai(List<string> hand)
     {
         bool tenpai = false;
 

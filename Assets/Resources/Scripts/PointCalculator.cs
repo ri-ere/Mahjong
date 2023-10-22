@@ -1,16 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class PointCalculator : MonoBehaviour
 {
     //플레이어 4인 점수
-    private int[] _userPoint = new int[4];
+    private readonly int[] _userPoint = new int[4];
 
     //점수용 변수
-    private TextMeshProUGUI[] _userPointText = new TextMeshProUGUI[4];
+    private readonly TextMeshProUGUI[] _userPointText = new TextMeshProUGUI[4];
 
     void Start()
     {

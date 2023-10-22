@@ -5,11 +5,11 @@ using System;
 
 public class Tiles
 {
-    int tileLeft = 70;//남은 츠모용 변수
-    bool Ryuukyoku = false;
+    private int _tileLeft = 70;//남은 츠모용 변수
+    private bool _ryuukyoku = false;
     
     //전체 패 선언, 총 139개
-    List<string> allTiles = new List<string>()
+    private readonly List<string> _allTiles = new List<string>()
     {
         "m1", "m1", "m1", "m1", "m2", "m2", "m2", "m2", "m3", "m3", "m3", "m3",
         "m4", "m4", "m4", "m4", "m5", "m5", "m5", "m5", "m6", "m6", "m6", "m6",
@@ -26,75 +26,63 @@ public class Tiles
         "e", "e", "e", "e", "s", "s", "s", "s", "w", "w", "w", "w", "n", "n", "n", "n",
         "p", "p", "p", "p", "f", "f", "f", "f", "c", "c", "c", "c", "m5r", "p5r", "s5r"
     };
-    //모든 타일 뽑기
-    void drawAllTiles() {
-        while(!isTileEmpty()) {
-            tileDraw();
-        }
-    }
     //게임 끝났는지 확인
-    public bool isGameEnd()
+    public bool IsGameEnd()
     {
-        if(Ryuukyoku) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return _ryuukyoku;
     }
     //남은 타일 있는지 확인
-    bool isTileEmpty() {
-        if(!allTiles.Any()) {
-            return true;
-        }
-        else {
-            return false;
-        }
+    private bool IsTileEmpty()
+    {
+        return !_allTiles.Any();
     }
     //타일 1장 뽑기
-    private string tileDraw() {
-        string drawnTile;
+    private string TileDraw() {
         Random random = new Random();
-        int randNum = random.Next(0, allTiles.Count);
-        drawnTile = allTiles[randNum];
-        allTiles.RemoveAt(randNum);
+        int randNum = random.Next(0, _allTiles.Count);
+        string drawnTile = _allTiles[randNum];
+        _allTiles.RemoveAt(randNum);
         
         return drawnTile;
     }
     //한번에 여러개 타일 드로우하는 함수, 츠모갯수 줄지 않음
-    private List<string> getManyTiles(int amount)
+    private List<string> GetManyTiles(int amount)
     {
         List<string> basket = new List<String>();
         for (int i = 0; i < amount; i++)
         {
-            basket.Add(tileDraw());
+            basket.Add(TileDraw());
         }
         return basket;
     }
     //도라표시패 8개 드로우
-    public List<string> drawDora()
+    public List<string> DrawDora()
     {
-        List<string> doras = new List<String>();
-        doras = getManyTiles(10);
-        return doras;
+        return GetManyTiles(10);
     }
     //타일 분배
-    public List<string> getFirstHand() {
-        return getManyTiles(13);
+    public List<string> GetFirstHand() {
+        return GetManyTiles(13);
     }
     //츠모
-    public string tsumo() {
-        --tileLeft;
-		if(tileLeft == 0) Ryuukyoku = true;
-        return tileDraw();
+    public string Tsumo() {
+        --_tileLeft;
+		if(_tileLeft == 0) _ryuukyoku = true;
+        return TileDraw();
     }
-    public int getTileLeft()
+    public int GetTileLeft()
     {
-        return tileLeft;
+        return _tileLeft;
     }
 
-    public int howManyTileleft()
+    public int HowManyTileLeft()
     {
-        return allTiles.Count;
+        return _allTiles.Count;
+    }
+    //모든 타일 뽑기
+    private void DrawAllTiles() {
+        while(!IsTileEmpty()) {
+            TileDraw();
+        }
     }
 }
