@@ -72,6 +72,7 @@ public class GamePlay : MonoBehaviour
                     --_userTime;
                 }
             }
+            //내 턴 아닐때 실행
             else
             {
                 _nowTime.text = "";
@@ -110,7 +111,7 @@ public class GamePlay : MonoBehaviour
     {
         //뒷면엔 클릭할때 이루어지는 상호작용이 없어서 안버려짐
         _hands[user].RemoveAt(_hands[user].IndexOf(tileName));
-        _tileDisplay.DahaiDisplay(tileName, user, ++_discardNums[user], false);
+        TileDisplay.DahaiDisplay(tileName, user, ++_discardNums[user], false);
         _hands[user] = HandArrange(_hands[user]);//손패 정리
         TileDisplay.HandDisplay(_hands[user], user);
         ++_nowPlayer;

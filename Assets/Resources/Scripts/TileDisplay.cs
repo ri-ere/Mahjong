@@ -43,18 +43,20 @@ public class TileDisplay : MonoBehaviour
         //유저 위치에 맞게 방향 돌리기
         userHand.transform.rotation = Quaternion.Euler(new Vector3(0, 0, user * 90));
     }
-    public void DahaiDisplay(string tile,int user, int howMany, bool isRiichi)
+    public static void DahaiDisplay(string tile,int user, int howMany, bool isRiichi)
     {
         // TODO: 리치하면 그 줄 더 밀어서 밖으로 나오게 만들어야함
         string userName = "User" + user + "Discard";
         bool isRiichiLine = false;
         GameObject userDiscard = GameObject.Find(userName);
         userDiscard.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
-        float[] xPos = {-1.25f, -1.7f, -2.15f, -2.6f, -3.05f, -3.5f};
+        float[] xPos = {-0.83f, -0.5f, -0.17f, 0.16f, 0.5f, 0.83f};
+        float[] yPos = {-1.25f, -1.7f, -2.15f, -2.6f, -3.05f, -3.5f};
+        float xRiichiPosCorrector = 0.06f;
+        float yRiichiPosCorrector = 0.06f;
         float[] xRiichiPos = {-1.25f, -1.7f, -2.15f, -2.6f, -3.05f, -3.5f};
-        float[] yRiichiPos = {-1.25f, -1.7f, -2.15f, -2.6f, -3.05f, -3.5f};
-
-        float[] yPos = {-0.83f, -0.5f, -0.17f, 0.16f, 0.5f, 0.83f};
+        float[] yRiichiPos = {-1.19f, -1.64f, -2.09f, -2.54f, -2.99f, -3.44f};
+        
         int x = howMany / 6;
         int y = howMany % 6;
         if (isRiichi)
@@ -62,7 +64,7 @@ public class TileDisplay : MonoBehaviour
             
         }
         //뒷면이 아니라 표시해야해서 user 0으로 설정
-        TileSpawner(tile, 0, "Discard", new Vector3(yPos[y], xPos[x], 0), new Vector3(0.5f, 0.5f, 0), userDiscard);
+        TileSpawner(tile, 0, "Discard", new Vector3(xPos[x], yPos[y], 0), new Vector3(0.5f, 0.5f, 0), userDiscard);
         //유저 위치에 맞게 방향 돌리기
         userDiscard.transform.rotation = Quaternion.Euler(new Vector3(0, 0, user * 90));
     }

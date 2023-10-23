@@ -5,7 +5,8 @@ public class TileClick : MonoBehaviour
     private const float Interval = 0.25f;
     private float _doubleClickedTime = -1.0f;
     private bool _isDoubleClicked = false;
-    void Start()
+
+    private void Start()
     {
         _gamePlay = GameObject.Find("GamePlay(Clone)").GetComponent<GamePlay>();
     }
@@ -28,7 +29,7 @@ public class TileClick : MonoBehaviour
         }
     }
 
-    void Update()
+    private void Update()
     {
         if(_isDoubleClicked && _gamePlay.GetIsMyTurn() && tag.Equals("0"))
         {
@@ -37,5 +38,6 @@ public class TileClick : MonoBehaviour
             if(user == 0) _gamePlay.Dahai(tile[0], user);//잘린 문자열이 0번에 들어있어서 tile[0]을 넘김
             _isDoubleClicked = false;
         }
+        else _isDoubleClicked = false;
     }
 }
