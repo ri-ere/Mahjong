@@ -40,4 +40,13 @@ public class TileClick : MonoBehaviour
         }
         else _isDoubleClicked = false;
     }
+
+    public void RiichiMover()
+    {
+        transform.position += new Vector3(0, 0.2f, 0);
+    }
+    public void RiichiRemover()
+    {
+        transform.position -= new Vector3(0, 0.2f, 0);
+    }
 }
