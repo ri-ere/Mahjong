@@ -22,7 +22,7 @@ public class HandChecker
         return handState;
     }
     //커츠들 이름 리스트로 넣어서 반환
-    public List<string> WhatIsTriplet(List<string> tiles)
+    public static List<string> WhatIsTriplet(List<string> tiles)
     {
         List<string> singleTile = new List<string>();
         List<string> triplet = new List<string>();
