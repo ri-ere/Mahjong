@@ -21,6 +21,41 @@ public class HandChecker
 
         return handState;
     }
+    string SequenceCheckTest(List<string> tiles, string stack, string before, int depth)
+     {
+         string result = "";
+         
+         List<string> numbers = (from tmp in tiles where tmp.Length >= 2 select tmp[..2]).Distinct().ToList();
+         List<string> sequences = WhatCanBeSequence(numbers);
+         
+         if (sequences.Count >= 1)
+         {
+             // foreach (string sequence in sequences)
+             // {
+             //     result += "[" + depth + " " + before + "->" + sequence + "]";
+             // }
+             foreach (string sequence in sequences)
+             {
+                 List<string> fakeHand = (from tmp in tiles where tmp.Length >= 2 select tmp[..2]).ToList();
+                 fakeHand = SingleSeqRemover(fakeHand, sequence);
+                 // result += "["  + depth + " " + sequence + MyTest(fakeHand, stack, sequence, ++depth) + "]";
+                 
+                 stack += "[" + depth + "->" + sequence + "]";
+                 result += SequenceCheckTest(fakeHand, stack, sequence, ++depth);
+             }
+         }
+         else result += "[" + depth + " " + stack + "]";
+         return result;
+     }
+    //아카도라 삭제오류 있어서 고쳐야함
+    List<string> SingleSeqRemover(List<string> tiles, string sequence)
+    {
+        List<string> tmp = tiles;
+        tmp.RemoveAt(tmp.IndexOf(sequence[..2]));
+        tmp.RemoveAt(tmp.IndexOf(sequence[2..4]));
+        tmp.RemoveAt(tmp.IndexOf(sequence[4..6]));
+        return tmp;
+    }
     //커츠들 이름 리스트로 넣어서 반환
     public static List<string> WhatIsTriplet(List<string> tiles)
     {
