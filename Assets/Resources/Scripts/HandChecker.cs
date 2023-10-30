@@ -16,46 +16,12 @@ public class HandChecker
 
         Dictionary<string, List<string>> handState = new Dictionary<string, List<string>>();
         handState.Add("triplet", WhatIsTriplet(tmpHand));
-        handState.Add("sequence", WhatIsSequence(tmpHand));
+        // handState.Add("sequence", WhatIsSequence(tmpHand));
         handState.Add("pair", WhatIsPair(tmpHand));
 
         return handState;
     }
-    string SequenceCheckTest(List<string> tiles, string stack, string before, int depth)
-     {
-         string result = "";
-         
-         List<string> numbers = (from tmp in tiles where tmp.Length >= 2 select tmp[..2]).Distinct().ToList();
-         List<string> sequences = WhatCanBeSequence(numbers);
-         
-         if (sequences.Count >= 1)
-         {
-             // foreach (string sequence in sequences)
-             // {
-             //     result += "[" + depth + " " + before + "->" + sequence + "]";
-             // }
-             foreach (string sequence in sequences)
-             {
-                 List<string> fakeHand = (from tmp in tiles where tmp.Length >= 2 select tmp[..2]).ToList();
-                 fakeHand = SingleSeqRemover(fakeHand, sequence);
-                 // result += "["  + depth + " " + sequence + MyTest(fakeHand, stack, sequence, ++depth) + "]";
-                 
-                 stack += "[" + depth + "->" + sequence + "]";
-                 result += SequenceCheckTest(fakeHand, stack, sequence, ++depth);
-             }
-         }
-         else result += "[" + depth + " " + stack + "]";
-         return result;
-     }
-    //아카도라 삭제오류 있어서 고쳐야함
-    List<string> SingleSeqRemover(List<string> tiles, string sequence)
-    {
-        List<string> tmp = tiles;
-        tmp.RemoveAt(tmp.IndexOf(sequence[..2]));
-        tmp.RemoveAt(tmp.IndexOf(sequence[2..4]));
-        tmp.RemoveAt(tmp.IndexOf(sequence[4..6]));
-        return tmp;
-    }
+    
     //커츠들 이름 리스트로 넣어서 반환
     private static List<string> WhatIsTriplet(List<string> tiles)
     {
@@ -106,6 +72,30 @@ public class HandChecker
         }
         return pair;
     }
+    List<List<string>> WhatIsSequence(List<string> tiles)
+    {
+        List<List<string>> result = new List<List<string>>();
+        string possibilities = FindAllSequence(tiles, 0);
+    
+    
+    
+        return result;
+    }
+    private string FindAllSequence(List<string> tiles, int depth)
+    {
+        string result = "";
+        List<string> numbers = (from tmp in tiles where tmp.Length >= 2 select tmp[..2]).Distinct().ToList();
+        List<string> sequences = WhatCanBeSequence(numbers);
+
+        if (sequences.Count < 1) return result;
+        foreach (string sequence in sequences)
+        {
+            List<string> fakeHand = (from tmp in tiles where tmp.Length >= 2 select tmp[..2]).ToList();
+            fakeHand = SingleSeqRemover(fakeHand, sequence);
+            result += depth + "-" + sequence + "," + FindAllSequence(fakeHand, depth + 1);
+        }
+        return result;
+    }
     //슌츠 가능 리스트들
     private List<string> WhatCanBeSequence(List<string> tiles)
     {
@@ -118,49 +108,14 @@ public class HandChecker
                     sequences.Add(numbers[i] + numbers[i + 1] + numbers[i + 2]);
         return sequences;
     }
-    //현재 손패에서 가능한 모든 슌츠들
-    public List<string> EverySequence(List<string> tiles)
+    //아카도라 삭제오류 있어서 고쳐야함 - 일단 함수에 넣을때 정리해서 넣는걸로 해결
+    List<string> SingleSeqRemover(List<string> tiles, string sequence)
     {
-        List<string> possibility = WhatCanBeSequence(tiles);
-        List<string> sequence = new List<string>();
-        int i = possibility.Count;
-        while (i != 0)
-        {
-            tiles.RemoveAt(tiles.IndexOf(possibility[0][..2]));
-            tiles.RemoveAt(tiles.IndexOf(possibility[0][2..4]));
-            tiles.RemoveAt(tiles.IndexOf(possibility[0][4..6]));
-            sequence.Add(possibility[0]);
-            possibility = WhatCanBeSequence(tiles);
-            i = possibility.Count;
-        }
-        return sequence;
-    }
-    //슌츠들 이름 리스트에 넣어서 반환
-    public List<string> WhatIsSequence(List<string> tiles)
-    {
-        List<string> sequence = new List<string>();
-        List<string> numbers = (from tmp in tiles where tmp.Length >= 2 select tmp[..2]).ToList();
-        bool isFind;
-        do
-        {
-            isFind = false;
-            List<string> tmp = numbers.Distinct().ToList(); //중복제거
-            //정렬되어 들어온다는 가정 하에 비교
-            //첫글자 같다면 두번째 글자가 i번과 i+1 번이 1차이로 같은지, i번과 i+2번이 2차이로 같은지 비교
-            for (int i = 0; i < tmp.Count-2;++i)
-                if (tmp[i][0] == tmp[i + 1][0] && tmp[i][0] == tmp[i + 2][0])
-                    if (tmp[i][1] == tmp[i + 1][1] - 1 && (tmp[i][1] == (tmp[i + 2][1] - 2)))
-                    {
-                        //전부 같다면 슌츠 리스트에 넣고 numbers에서 제거해서 다른 슌츠 찾기
-                        sequence.Add(tmp[i] + tmp[i + 1] + tmp[i + 2]);
-                        numbers.RemoveAt(numbers.IndexOf(tmp[i]));
-                        numbers.RemoveAt(numbers.IndexOf(tmp[i+1]));
-                        numbers.RemoveAt(numbers.IndexOf(tmp[i+2]));
-                        isFind = true;
-                        break;
-                    }
-        } while (isFind);
-        return sequence;
+        List<string> tmp = tiles;
+        tmp.RemoveAt(tmp.IndexOf(sequence[..2]));
+        tmp.RemoveAt(tmp.IndexOf(sequence[2..4]));
+        tmp.RemoveAt(tmp.IndexOf(sequence[4..6]));
+        return tmp;
     }
 }
 //커츠 모두 확인하고 머리 확인하고 슌츠 확인하기
