@@ -75,12 +75,26 @@ public class HandChecker
     List<List<string>> WhatIsSequence(List<string> tiles)
     {
         List<List<string>> result = new List<List<string>>();
+        List<string> tmpStorage = new List<string>();
+        int howMany = 0;
         string possibilities = FindAllSequence(tiles, 0);
-    
+        possibilities = possibilities[..^1];// , 가 하나 더 있어서 마지막에 아무것도 없는 배열이 하나 더 있어서 마지막 "," 제거
+        string[] possibility = possibilities.Split(',');
+        foreach (var poss in possibility)
+        {
+            if (poss[0] == '0')
+            {
+                tmpStorage.Add(poss);
+            }
+            else
+            {
+            
+            }
+        }
     
     
         return result;
-    }
+    }//마지막에 공백 있어서 없는거 하나 들어가는듯?
     private string FindAllSequence(List<string> tiles, int depth)
     {
         string result = "";
