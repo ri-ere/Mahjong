@@ -76,6 +76,7 @@ public class HandChecker
     {
         List<List<string>> result = new List<List<string>>();
         List<string> tmpStorage = new List<string>();
+        string tmp = "";
         int howMany = 0;
         string possibilities = FindAllSequence(tiles, 0);
         possibilities = possibilities[..^1];// , 가 하나 더 있어서 마지막에 아무것도 없는 배열이 하나 더 있어서 마지막 "," 제거
@@ -84,17 +85,25 @@ public class HandChecker
         {
             if (poss[0] == '0')
             {
-                tmpStorage.Add(poss);
+                if (tmp != "")
+                {
+                    result.Add(MakeSequence(tmp));
+                }
+                tmp = poss;
             }
-            else
-            {
-            
-            }
+            else tmp += "," + poss;
         }
+        if (tmp != "") result.Add(MakeSequence(tmp));
     
     
         return result;
     }//마지막에 공백 있어서 없는거 하나 들어가는듯?
+    List<string> MakeSequence(string sequences)
+    {
+        List<string> result = new List<string>();
+
+        return result;
+    }
     private string FindAllSequence(List<string> tiles, int depth)
     {
         string result = "";
