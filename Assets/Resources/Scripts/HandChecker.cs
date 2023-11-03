@@ -72,32 +72,40 @@ public class HandChecker
         }
         return pair;
     }
-    List<List<string>> WhatIsSequence(List<string> tiles)
+List<string> WhatIsSequence(List<string> tiles)
+{
+    List<string> result = new List<string>();
+    List<string> tmpStorage = new List<string>();
+    int howMany = 0;
+    string possibilities = FindAllSequence(tiles, 0);
+    if (possibilities == "") return result;
+    possibilities = possibilities[..^1];// , 가 하나 더 있어서 마지막에 아무것도 없는 배열이 하나 더 있어서 마지막 "," 제거
+    string[] possibility = possibilities.Split(',');
+    const int zero = 48;//아스키코드로 "0" == 48
+    string[] stack = new string[4];
+    stack[0] = possibility[0];
+    for (int i = 1; i < possibility.Length; ++i)
     {
-        List<List<string>> result = new List<List<string>>();
-        List<string> tmpStorage = new List<string>();
-        string tmp = "";
-        int howMany = 0;
-        string possibilities = FindAllSequence(tiles, 0);
-        possibilities = possibilities[..^1];// , 가 하나 더 있어서 마지막에 아무것도 없는 배열이 하나 더 있어서 마지막 "," 제거
-        string[] possibility = possibilities.Split(',');
-        foreach (var poss in possibility)
+        Console.WriteLine("possibility : " + possibility[i]);
+        if (possibility[i][0] > possibility[i-1][0])
         {
-            if (poss[0] == '0')
-            {
-                if (tmp != "")
-                {
-                    result.Add(MakeSequence(tmp));
-                }
-                tmp = poss;
-            }
-            else tmp += "," + poss;
+            stack[possibility[i][0]- zero] = possibility[i];
         }
-        if (tmp != "") result.Add(MakeSequence(tmp));
+        else
+        {
+            string tmp = "";
+            int max = possibility[i][0] - zero;
+            for (int j = 0; j <= max; ++j)
+            {
+                tmp += stack[j][2..] + ",";
+            }
+            Console.WriteLine("tmp : " + tmp);
+            result.Add(tmp[..^1]);// 마지막 "," 제거
+        }
+    }
     
-    
-        return result;
-    }//마지막에 공백 있어서 없는거 하나 들어가는듯?
+    return result;
+}//마지막에 공백 있어서 없는거 하나 들어가는듯?
     List<string> MakeSequence(string sequences)
     {
         List<string> result = new List<string>();
