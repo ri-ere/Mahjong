@@ -72,45 +72,49 @@ public class HandChecker
         }
         return pair;
     }
-List<string> WhatIsSequence(List<string> tiles)
-{
-    List<string> result = new List<string>();
-    List<string> tmpStorage = new List<string>();
-    int howMany = 0;
-    string possibilities = FindAllSequence(tiles, 0);
-    if (possibilities == "") return result;
-    possibilities = possibilities[..^1];// , 가 하나 더 있어서 마지막에 아무것도 없는 배열이 하나 더 있어서 마지막 "," 제거
-    string[] possibility = possibilities.Split(',');
-    const int zero = 48;//아스키코드로 "0" == 48
-    string[] stack = new string[4];
-    stack[0] = possibility[0];
-    for (int i = 1; i < possibility.Length; ++i)
-    {
-        Console.WriteLine("possibility : " + possibility[i]);
-        if (possibility[i][0] > possibility[i-1][0])
-        {
-            stack[possibility[i][0]- zero] = possibility[i];
-        }
-        else
-        {
-            string tmp = "";
-            int max = possibility[i][0] - zero;
-            for (int j = 0; j <= max; ++j)
-            {
-                tmp += stack[j][2..] + ",";
-            }
-            Console.WriteLine("tmp : " + tmp);
-            result.Add(tmp[..^1]);// 마지막 "," 제거
-        }
-    }
-    
-    return result;
-}//마지막에 공백 있어서 없는거 하나 들어가는듯?
-    List<string> MakeSequence(string sequences)
+    List<string> WhatIsSequence(List<string> tiles)
     {
         List<string> result = new List<string>();
-
+        List<string> tmpStorage = new List<string>();
+        const int zero = 48;//아스키코드로 "0" == 48
+        string[] stack = new string[4];
+        string possibilities = FindAllSequence(tiles, 0);
+        if (possibilities == "") return result;
+    
+        string[] possibility = possibilities[..^1].Split(',');// "," 가 하나 더 있어서 마지막에 아무것도 없는 배열이 하나 더 있어서 마지막 "," 제거
+        stack[0] = possibility[0];
+        for (int i = 1; i < possibility.Length; ++i)
+        {
+            if (possibility[i][0] <= possibility[i - 1][0])
+            {
+                result.Add(AddSequence(stack, possibility[i-1][0] - zero));
+            
+                //test
+                string tmp = AddSequence(stack, possibility[i - 1][0] - zero);
+                ArrangeSequence(tmp);
+            }
+            stack[possibility[i][0] - zero] = possibility[i];
+        }
+        result.Add(AddSequence(stack, possibility[^1][0] - zero));
         return result;
+    }
+    string ArrangeSequence(string sequences)
+    {
+        string result = ",";
+        string[] sequence = sequences.Split(",");
+        Dictionary<string, int> mps = new Dictionary<string, int> { {"m", 0}, {"p", 30}, {"s", 60} };//손패 순서
+        foreach (string seq in sequence)
+        {
+            int tmp = seq[1] + seq[3] + seq[5] + mps[seq[0].ToString()];
+        }
+        return result[..^1];
+    }
+    private string AddSequence(string[] sequences, int max)
+    {
+        string result = "";
+        for (int j = 0; j <= max; ++j)
+            result += sequences[j][2..] + ",";
+        return result[..^1];
     }
     private string FindAllSequence(List<string> tiles, int depth)
     {
