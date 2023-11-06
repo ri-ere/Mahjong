@@ -87,15 +87,24 @@ public class HandChecker
         {
             if (possibility[i][0] <= possibility[i - 1][0])
             {
-                result.Add(AddSequence(stack, possibility[i-1][0] - zero));
+                // 01 있으면 정렬
+                // 잘라서 넣기
+            
+            
+                duplicated.Add(AddSequence(stack, possibility[i-1][0] - zero));
             
                 //test
                 string tmp = AddSequence(stack, possibility[i - 1][0] - zero);
                 ArrangeSequence(tmp);
+            
             }
             stack[possibility[i][0] - zero] = possibility[i];
         }
-        result.Add(AddSequence(stack, possibility[^1][0] - zero));
+    
+        //정렬하고 넣기
+        duplicated.Add(AddSequence(stack, possibility[^1][0] - zero));
+    
+        //중복 제거(.distinct)하고 return
         return result;
     }
     string ArrangeSequence(string sequences)
