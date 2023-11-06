@@ -114,6 +114,7 @@ public class GamePlay : MonoBehaviour
         TileDisplay.DahaiDisplay(tileName, user, ++_discardNums[user], false);
         _hands[user] = HandArrange(_hands[user]);//손패 정리
         TileDisplay.HandDisplay(_hands[user], user);
+        
         ++_nowPlayer;
         _nowPlayer %= 4;
         _isMyTurn = _nowPlayer == 0;
@@ -156,7 +157,7 @@ public class GamePlay : MonoBehaviour
     //핸드 위치 변경하는 함수
     private static List<string> HandArrange(List<string> hand)
     {
-        List<string> sortSequence = new List<string>()
+        List<string> sortSequence = new List<string>
         {
             "m1", "m2", "m3", "m4", "m5", "m5r", "m6", "m7", "m8", "m9",
             "p1", "p2", "p3", "p4", "p5", "p5r", "p6", "p7", "p8", "p9",

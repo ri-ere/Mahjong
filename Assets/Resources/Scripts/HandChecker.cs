@@ -21,6 +21,34 @@ public class HandChecker
 
         return handState;
     }
+    public List<string> CanHuro()
+    {
+        List<string> result = new List<string>();
+    
+    
+    
+    
+        return result;
+    }
+    
+    List<string> CanChi(List<string> tiles)
+    {
+        List<string> result = new List<string>();
+    
+    
+    
+    
+        return result;
+    }
+    List<string> CanPong(List<string> tiles)
+    {
+        List<string> result = new List<string>();
+    
+    
+    
+    
+        return result;
+    }
     //커츠들 이름 리스트로 넣어서 반환
     private static List<string> WhatIsTriplet(List<string> tiles)
     {
@@ -71,7 +99,7 @@ public class HandChecker
         }
         return pair;
     }
-    List<string> WhatIsSequence(List<string> tiles)
+    public List<string> WhatIsSequence(List<string> tiles)
     {
         List<string> result = new List<string>();
         const int zero = 48;//아스키코드로 "0" == 48
@@ -142,10 +170,17 @@ public class HandChecker
         List<string> numbers = (from tmp in tiles where tmp.Length >= 2 select tmp[..2]).Distinct().ToList();
         //첫글자 같다면 두번째 글자가 i번과 i+1 번이 1차이로 같은지, i번과 i+2번이 2차이로 같은지 비교, 같으면 추가
         for (int i = 0; i < numbers.Count - 2; ++i)
-            if (numbers[i][0] == numbers[i + 1][0] && numbers[i][0] == numbers[i + 2][0])
-                if (numbers[i][1] == numbers[i + 1][1] - 1 && numbers[i][1] == numbers[i + 2][1] - 2)
-                    sequences.Add(numbers[i] + numbers[i + 1] + numbers[i + 2]);
+            if(IsSequence(numbers[i], numbers[i + 1], numbers[i + 2]))
+                sequences.Add(numbers[i] + numbers[i + 1] + numbers[i + 2]);
         return sequences;
+    }
+
+    private bool IsSequence(string a, string b, string c)
+    {
+        if(a[0] == b[0] && a[0] == c[0])
+            if (a[1] == b[1] - 1 && a[1] == c[1] - 2)
+                return true;
+        return false;
     }
     //아카도라 삭제오류 있어서 고쳐야함 - 일단 함수에 넣을때 정리해서 넣는걸로 해결
     List<string> SingleSeqRemover(List<string> tiles, string sequence)
