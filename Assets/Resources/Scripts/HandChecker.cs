@@ -21,7 +21,6 @@ public class HandChecker
 
         return handState;
     }
-    
     //커츠들 이름 리스트로 넣어서 반환
     private static List<string> WhatIsTriplet(List<string> tiles)
     {
@@ -75,11 +74,10 @@ public class HandChecker
     List<string> WhatIsSequence(List<string> tiles)
     {
         List<string> result = new List<string>();
-        List<string> tmpStorage = new List<string>();
         const int zero = 48;//아스키코드로 "0" == 48
         string[] stack = new string[4];
         string possibilities = FindAllSequence(tiles, 0);
-        if (possibilities == "") return result;
+        if (possibilities == "") return result;//가능한 슌츠가 없을때 반환
     
         string[] possibility = possibilities[..^1].Split(',');// "," 가 하나 더 있어서 마지막에 아무것도 없는 배열이 하나 더 있어서 마지막 "," 제거
         stack[0] = possibility[0];
@@ -89,40 +87,37 @@ public class HandChecker
             {
                 // 01 있으면 정렬
                 // 잘라서 넣기
-            
-            
-                duplicated.Add(AddSequence(stack, possibility[i-1][0] - zero));
-            
-                //test
-                string tmp = AddSequence(stack, possibility[i - 1][0] - zero);
-                ArrangeSequence(tmp);
-            
+                string sequences = MakeSequence(stack, possibility[i-1][0] - zero);
+                string[] seq = sequences.Split(",");
+                string strToAdd = "";
+                foreach (string s in seq)
+                {
+                    strToAdd += s + ",";
+                    result.Add(strToAdd[..^1]);
+                }
             }
             stack[possibility[i][0] - zero] = possibility[i];
         }
-    
         //정렬하고 넣기
-        duplicated.Add(AddSequence(stack, possibility[^1][0] - zero));
-    
-        //중복 제거(.distinct)하고 return
-        return result;
-    }
-    string ArrangeSequence(string sequences)
-    {
-        string result = ",";
-        string[] sequence = sequences.Split(",");
-        Dictionary<string, int> mps = new Dictionary<string, int> { {"m", 0}, {"p", 30}, {"s", 60} };//손패 순서
-        foreach (string seq in sequence)
+        string a = MakeSequence(stack, possibility[^1][0] - zero);
+        string[] b = a.Split(",");
+        string str = "";
+        foreach (string s in b)
         {
-            int tmp = seq[1] + seq[3] + seq[5] + mps[seq[0].ToString()];
+            str += s + ",";
+            result.Add(str[..^1]);
         }
-        return result[..^1];
+        return result.Distinct().ToList();
     }
-    private string AddSequence(string[] sequences, int max)
+    string MakeSequence(string[] sequences, int max)
     {
-        string result = "";
-        for (int j = 0; j <= max; ++j)
-            result += sequences[j][2..] + ",";
+        Dictionary<string, int> mps = new Dictionary<string, int> { {"m", 0}, {"p", 30}, {"s", 60} };//손패 순서
+        Dictionary<string, int> seqToNum = new Dictionary<string, int>();
+        for (int i = 0; i <= max; i++)
+        {
+            seqToNum[sequences[i] + i] = sequences[i][3] + sequences[i][5] + sequences[i][7] + mps[sequences[i][2].ToString()];
+        }
+        string result = seqToNum.OrderBy(x => x.Value).Aggregate("", (current, pair) => current + (pair.Key[2..^1] + ","));
         return result[..^1];
     }
     private string FindAllSequence(List<string> tiles, int depth)
