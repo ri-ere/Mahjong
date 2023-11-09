@@ -8,7 +8,7 @@ public class RiichiButton : MonoBehaviour
     private void Start()
     {
         _riichiButton = GameObject.Find("RiichiButton");
-        // _riichiButton.SetActive(false);
+        _riichiButton.SetActive(false);
 
     }
     

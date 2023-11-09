@@ -3,23 +3,60 @@ using System.Linq;
 
 public class HandChecker
 {
-    //여기서 나오는 것들은 다 울지 않은 멘젠 상태의 패들만 나옴
-    public Dictionary<string, List<string>> NowHandState(List<string> hand)
+
+//이 함수에서 key값이 40인 패들이 텐파이임
+    Dictionary<int, List<string>> NowHandState(List<string> hand)
     {
-        List<string> tmpHand = new List<string>();
-        foreach (string tile in hand)
+        Dictionary<int, List<string>> result = new Dictionary<int, List<string>>();
+        List<string> tiles = hand.Select(tile => tile.Length >= 3 ? tile[..2] : tile).ToList();//아카도라 제거
+        
+        foreach (string sequencePoss in WhatIsSequence(tiles))
         {
-            string tmp = tile;
-            if (tmp.Length >= 3) tmp = tmp[..2]; //아카도라일수도 있으니 뒤에 r문자 자르기
-            tmpHand.Add(tmp);
+            string setList = "";
+            int weight = 0;
+            List<string> fakeHand = tiles;
+            foreach (string seq in sequencePoss.Split(","))
+            {
+                setList += "b-" + seq + ",";
+                weight += 10;
+                fakeHand = SingleSeqRemover(fakeHand, seq);
+            }
+            foreach (string triplet in WhatIsTriplet(fakeHand))
+            {
+                setList += "b-" + triplet + ",";
+                weight += 10;
+                for (int i = 0; i < 3; i++) fakeHand.RemoveAt(fakeHand.IndexOf(triplet));
+            }
+            foreach (string pair in WhatIsPair(fakeHand))
+            {
+                setList += "h-" + pair + ",";
+                weight += 5;
+                for (int i = 0; i < 2; i++) fakeHand.RemoveAt(fakeHand.IndexOf(pair));
+            }
+            if (result.ContainsKey(weight)) result[weight].Add(setList[..^1]);//있으면 리스트에 추가
+            else result[weight] = new List<string> { setList[..^1] };//없을때 생성
         }
-
-        Dictionary<string, List<string>> handState = new Dictionary<string, List<string>>();
-        handState.Add("triplet", WhatIsTriplet(tmpHand));
-        // handState.Add("sequence", WhatIsSequence(tmpHand));
-        handState.Add("pair", WhatIsPair(tmpHand));
-
-        return handState;
+        //슌츠가 없는 경우로 한번 더 실행
+        string setListForSingle = "";
+        int weightForSingle = 0;
+        foreach (string triplet in WhatIsTriplet(tiles))
+        {
+            setListForSingle += "b-" + triplet + ",";
+            weightForSingle += 10;
+            for (int i = 0; i < 3; i++) tiles.RemoveAt(tiles.IndexOf(triplet));
+        }
+        foreach (string pair in WhatIsPair(tiles))
+        {
+            setListForSingle += "h-" + pair + ",";
+            weightForSingle += 5;
+            for (int i = 0; i < 2; i++) tiles.RemoveAt(tiles.IndexOf(pair));
+        }
+        if (weightForSingle != 0)
+        {
+            if (result.ContainsKey(weightForSingle)) result[weightForSingle].Add(setListForSingle[..^1]);//있으면 리스트에 추가
+            else result[weightForSingle] = new List<string> { setListForSingle[..^1] };//없을때 생성
+        }
+        return result;
     }
     public List<string> CanHuro()
     {
@@ -30,13 +67,18 @@ public class HandChecker
     
         return result;
     }
-    
+    List<string> TileWaitList(List<string> hand)
+    {
+        List<string> result = new List<string>();
+        result.AddRange(CanChi(hand));
+        result.AddRange(CanPong(hand));
+        result.AddRange(CanKan(hand));
+        return result;
+    }
+
     List<string> CanChi(List<string> tiles)
     {
         List<string> result = new List<string>();
-    
-    
-    
     
         return result;
     }
@@ -44,11 +86,21 @@ public class HandChecker
     {
         List<string> result = new List<string>();
     
-    
-    
+        return result;
+    }
+    List<string> CanKan(List<string> tiles)
+    {
+        List<string> result = new List<string>();
     
         return result;
     }
+    List<string> CanRon(List<string> tiles)
+    {
+        List<string> result = new List<string>();
+    
+        return result;
+    }
+
     //커츠들 이름 리스트로 넣어서 반환
     private static List<string> WhatIsTriplet(List<string> tiles)
     {
@@ -99,7 +151,8 @@ public class HandChecker
         }
         return pair;
     }
-    public List<string> WhatIsSequence(List<string> tiles)
+    public 
+        List<string> WhatIsSequence(List<string> tiles)
     {
         List<string> result = new List<string>();
         const int zero = 48;//아스키코드로 "0" == 48
@@ -113,34 +166,39 @@ public class HandChecker
         {
             if (possibility[i][0] <= possibility[i - 1][0])
             {
-                // 01 있으면 정렬
                 // 잘라서 넣기
-                string sequences = MakeSequence(stack, possibility[i-1][0] - zero);
-                string[] seq = sequences.Split(",");
-                string strToAdd = "";
-                foreach (string s in seq)
+                for (int j = 0; j <= possibility[i-1][0] - zero; j++)
                 {
-                    strToAdd += s + ",";
-                    result.Add(strToAdd[..^1]);
+                    string input = "";
+                    for (int k = 0; k <= j; k++)
+                    {
+                        input += stack[k] + ",";
+                    }
+                    result.Add(MakeSequence(input[..^1], j));
                 }
             }
             stack[possibility[i][0] - zero] = possibility[i];
         }
-        //정렬하고 넣기
-        string a = MakeSequence(stack, possibility[^1][0] - zero);
-        string[] b = a.Split(",");
-        string str = "";
-        foreach (string s in b)
+        // 잘라서 넣기
+        for (int j = 0; j <= possibility[^1][0] - zero; j++)
         {
-            str += s + ",";
-            result.Add(str[..^1]);
+            string input = "";
+            for (int k = 0; k <= j; k++)
+            {
+                input += stack[k] + ",";
+            }
+            result.Add(MakeSequence(input[..^1], j));
         }
+        //중복 제거(.distinct)하고 return
         return result.Distinct().ToList();
     }
-    string MakeSequence(string[] sequences, int max)
+    string MakeSequence(string seq, int max)
     {
         Dictionary<string, int> mps = new Dictionary<string, int> { {"m", 0}, {"p", 30}, {"s", 60} };//손패 순서
         Dictionary<string, int> seqToNum = new Dictionary<string, int>();
+        if (seq.Length < 10) return seq[2..];
+    
+        string[] sequences = seq.Split(",");
         for (int i = 0; i <= max; i++)
         {
             seqToNum[sequences[i] + i] = sequences[i][3] + sequences[i][5] + sequences[i][7] + mps[sequences[i][2].ToString()];

@@ -41,6 +41,7 @@ public class GamePlay : MonoBehaviour
         _dora = _tiles.DrawDora();//도라 뽑기
         MakeFirstDoraDisplay();//도라 표시
         MakeFirstHand();//첫 손패 주기
+        //천화 지화 확인하기
         StartCoroutine(MyUpdateCrt());//게임 시작
     }
 
