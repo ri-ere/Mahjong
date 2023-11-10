@@ -4,6 +4,26 @@ using System.Linq;
 public class HandChecker
 {
 
+    bool CanRiichi(List<string> hand)
+    {
+        //치또이츠 확인
+        if(WhatIsPair(hand).Count == 6) return true;
+        if (IsKokushiMusou(hand)) return true;
+        if (NowHandState(hand).ContainsKey(40)) return true;
+    
+        return false;
+    }
+    bool IsKokushiMusou(List<string> hand)
+    {
+        List<string> kokushiMusou = new List<string> {"m1", "m9", "p1", "p9", "s1", "s9", "e", "s", "w", "n", "p", "f", "c"};
+        bool kokushiCheck = false;
+        for (int i = 0; i < hand.Count; ++i)
+            if (!hand[i].Equals(kokushiMusou[i]))
+                if (!kokushiCheck && kokushiMusou.Contains(hand[i]))
+                    kokushiCheck = true;
+                else return false;
+        return true;
+    }
 //이 함수에서 key값이 40인 패들이 텐파이임
     Dictionary<int, List<string>> NowHandState(List<string> hand)
     {
