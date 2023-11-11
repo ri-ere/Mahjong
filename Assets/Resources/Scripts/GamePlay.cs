@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using TMPro;
 public class GamePlay : MonoBehaviour
@@ -86,6 +87,13 @@ public class GamePlay : MonoBehaviour
             _hands[_nowPlayer].Add(_nowTsumoTile);//손패에 추가
             _hands[_nowPlayer] = HandArrange(_hands[_nowPlayer]);//손패 정리
             TileDisplay.TsumoDisplay(_nowTsumoTile, _nowPlayer);//츠모한거 오브젝트 생성
+            
+            
+            HandCheck(_hands[_nowPlayer]);//손패 확인
+            Debug.Log(_handChecker.CanRiichi(_hands[_nowPlayer]) ? "yes" : "no");
+            Debug.Log(_handChecker.IsKokushiMusou(_hands[_nowPlayer]) ? "kkms yes" : "kkms no");
+                        
+            
             _userTime = WaitTime;
             _isTurnReady = true;
             _nowTime.text = _isMyTurn ? _userTime.ToString() : "";
@@ -102,6 +110,11 @@ public class GamePlay : MonoBehaviour
             _discardNums.Add(-1);
             TileDisplay.HandDisplay(_hands[i], i);
         }
+
+        _hands[0] = new List<string>()
+        {
+            "m1", "m9", "p1", "p9", "s1", "s9", "e", "s", "w", "n", "p", "f", "c"
+        };
     }
     private IEnumerator NotMyTurnDahai()
     {
@@ -115,7 +128,7 @@ public class GamePlay : MonoBehaviour
         TileDisplay.DahaiDisplay(tileName, user, ++_discardNums[user], false);
         _hands[user] = HandArrange(_hands[user]);//손패 정리
         TileDisplay.HandDisplay(_hands[user], user);
-        
+
         ++_nowPlayer;
         _nowPlayer %= 4;
         _isMyTurn = _nowPlayer == 0;
@@ -212,12 +225,7 @@ public class GamePlay : MonoBehaviour
     //전체 핸드 로그로 확인하는 함수
     private void HandCheck(List<string> hand)
     {
-        string tileToPrint = "";
-        foreach (string tile in hand)
-        {
-            tileToPrint += tile + ", ";
-        }
-        Debug.Log(tileToPrint);
+        Debug.Log(hand.Aggregate("", (current, tile) => current + ("\"" + tile + "\", ")));
     }
 }
 
