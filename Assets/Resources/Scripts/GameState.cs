@@ -13,10 +13,4 @@ public class GameState
     private int _user1Wind;
     private int _user2Wind;
     private int _user3Wind;
-    
-    private readonly bool _gameEnd = false;
-    public bool IsGameEnd()
-    {
-        return _gameEnd;
-    }
 }
