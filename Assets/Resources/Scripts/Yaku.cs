@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 public class Yaku
 {
@@ -42,6 +43,14 @@ public class Yaku
             else return false;
         }
         return false;
+    }
+
+
+    public bool IsKokushiMusou(List<string> hand)
+    {
+        const string kokushiMusou = "m1,m9,p1,p9,s1,s9,e,s,w,n,p,f,c,";
+        string tiles = hand.Distinct().ToList().Aggregate("", (current, tile) => current + tile + ",");
+        return tiles.Equals(kokushiMusou) && hand.Count == 14;
     }
     bool IsTenpai(List<string> hand)
     {
