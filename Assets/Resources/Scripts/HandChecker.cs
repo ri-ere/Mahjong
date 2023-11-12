@@ -4,31 +4,49 @@ using System.Linq;
 public class HandChecker
 {
     private Yaku _yaku = new Yaku();
-    public bool CanWin(List<string> hand, bool isMenzen)
+    public bool CanWin(List<string> hand, Dictionary<int, List<string>> handState, bool isMenzen)
     {
         //치또이츠 확인
         if (WhatIsPair(hand).Count == 7) return true;
-        if (IsKokushiMusou(hand)) return true;
+        if (_yaku.IsKokushiMusou(hand)) return true;
         
         //이거 고쳐야함 저거랑
-        Dictionary<int, List<string>> handState = NowHandState(hand);
-        if (handState.TryGetValue(41, out var value))
+        if (handState.ContainsKey(41))
         {
-            foreach (var tiles in value)
+            foreach (var tiles in handState[41])
             {
+                
                 if (_yaku.HasYaku(tiles, isMenzen)) return true;
             }
         }
         
         return false;
     }
-    public bool CanRiichi(List<string> hand)
+
+    public List<string> MakeCanChiList(List<string> hand)
+    {
+        List<string> result = new List<string>();
+        return result;
+    }
+    public List<string> MakeCanPongList(List<string> hand)
+    {
+        List<string> result = new List<string>();
+        return result;
+    }
+    public List<string> MakeCanKanList(List<string> hand)
+    {
+        List<string> result = new List<string>();
+        return result;
+    }
+
+    
+    
+    public bool CanRiichi(List<string> hand, Dictionary<int, List<string>> handState)
     {
         //치또이츠 확인
         if (WhatIsPair(hand).Count == 6) return true;
         if (IsKokushiMusouWait(hand)) return true;
 
-        Dictionary<int, List<string>> handState = NowHandState(hand);
         if (handState.ContainsKey(41)) return true;
         if (handState.ContainsKey(40)) return true;
         if (handState.ContainsKey(32)) return true;
@@ -46,6 +64,7 @@ public class HandChecker
 
         foreach (string tile in hand)
         {
+            if (tile.Equals("c") && !kokushiCheck) return true;//국사 완성인데 마지막이 "중"이면 true 반환
             if (tile.Equals(kokushiMusou[kokushiCnt]))
             {
                 ++kokushiCnt;
@@ -56,33 +75,10 @@ public class HandChecker
                 else return false;
             }
         }
-
         return true;
     }
 
-    public bool IsKokushiMusou(List<string> hand)
-    {
-        List<string> kokushiMusou = new List<string>
-            { "m1", "m9", "p1", "p9", "s1", "s9", "e", "s", "w", "n", "p", "f", "c" };
-        bool kokushiCheck = false;
-        int kokushiCnt = 0;
-
-        foreach (string tile in hand)
-        {
-            if (tile.Equals(kokushiMusou[kokushiCnt]))
-            {
-                ++kokushiCnt;
-            }
-            else
-            {
-                if (!kokushiCheck && kokushiMusou.Contains(tile)) kokushiCheck = true;
-                else return false;
-            }
-        }
-
-        return true;
-    }
-    Dictionary<int, List<string>> NowHandState(List<string> hand)
+    public Dictionary<int, List<string>> NowHandState(List<string> hand)
     {
         Dictionary<int, List<string>> result = new Dictionary<int, List<string>>();
         List<string> tiles = hand.Select(tile => tile.Length >= 3 ? tile[..2] : tile).ToList(); //아카도라 제거
