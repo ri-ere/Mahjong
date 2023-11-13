@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
@@ -31,7 +32,7 @@ public class PointCalculator : MonoBehaviour
         _userPointText[2].text = _userPoint[2].ToString();
         _userPointText[3].text = _userPoint[3].ToString();
     }
-    public void UserWin(int user)
+    public void DoCalc(List<string> hand, List<string> pattern, string waitType, bool didHuro, int someoneRiichi, int howLong)
     {
         
     }
