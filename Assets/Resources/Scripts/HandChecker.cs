@@ -55,29 +55,47 @@ public class HandChecker
         return false;
     }
 
-    bool IsKokushiMusouWait(List<string> hand)
+    public bool IsKokushiMusouWait(List<string> hand)
     {
         List<string> kokushiMusou = new List<string>
             { "m1", "m9", "p1", "p9", "s1", "s9", "e", "s", "w", "n", "p", "f", "c" };
+        string forRiichi = "";
+        string forWinTile = "";
         bool kokushiCheck = false;
+        bool kokushiDouble = false;
         int kokushiCnt = 0;
 
-        foreach (string tile in hand)
+        for (int i = 0; i < hand.Count; i++)
         {
-            if (tile.Equals("c") && !kokushiCheck) return true;//국사 완성인데 마지막이 "중"이면 true 반환
-            if (tile.Equals(kokushiMusou[kokushiCnt]))
-            {
-                ++kokushiCnt;
-            }
+            if (hand[i].Equals(kokushiMusou[kokushiCnt])) ++kokushiCnt;
             else
             {
-                if (!kokushiCheck) kokushiCheck = true;
-                else return false;
+                if (kokushiMusou.Contains(hand[i]))
+                {
+                    if (hand[i].Equals(hand[i - 1]))
+                    {
+                        if (!kokushiDouble) kokushiDouble = true;
+                        else return false;
+                    }
+                    else
+                    {
+                        forWinTile = kokushiMusou[kokushiCnt++];
+                        --i;
+                    }
+                }
+                else
+                {
+                    if (!kokushiCheck)
+                    {
+                        forRiichi = hand[i];
+                        kokushiCheck = true;
+                    }
+                    else return false;
+                }
             }
         }
         return true;
     }
-
     public Dictionary<int, List<string>> NowHandState(List<string> hand)
     {
         Dictionary<int, List<string>> result = new Dictionary<int, List<string>>();
