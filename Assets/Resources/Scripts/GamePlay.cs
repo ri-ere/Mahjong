@@ -17,6 +17,7 @@ public class GamePlay : MonoBehaviour
     private TextMeshProUGUI _tileLeft;
     
     private bool _oyaWin = false;
+    private bool _winGame = false;
     private bool _gameEnd = false;//gamestate로 옮기기
     private int _nowWind;//gamestate로 옮기기
     private bool[] _isRiichi;//gamestate로 옮기기
@@ -63,12 +64,13 @@ public class GamePlay : MonoBehaviour
 
     private IEnumerator MyUpdateCrt()
     {
-        while (!_gameEnd)
+        while (!_winGame)
         {
             yield return new WaitForSeconds(1f);
             if (_isFirstTurn) _isFirstTurn = false;
             else MyUpdate();
         }
+        ReadyCalc();
     }
     private void MyUpdate()
     {
@@ -78,8 +80,6 @@ public class GamePlay : MonoBehaviour
         {
             if(_isMyTurn)
             {
-                Dictionary<int, List<string>> handState = _handChecker.NowHandState(_hands[_nowPlayer]);
-                if (_handChecker.CanRiichi(_hands[_nowPlayer], handState)) _buttonController.RiichiBtnActivate();
                 _nowTime.text = _userTime.ToString();
                 
                 //시간 끝나면 츠모한거 버리기
@@ -120,28 +120,32 @@ public class GamePlay : MonoBehaviour
                 Dictionary<int, List<string>> handState = _handChecker.NowHandState(_hands[_nowPlayer]);
             
                 Debug.Log(_handChecker.CanRiichi(_hands[_nowPlayer], handState) ? "yes" : "no");
+                if (_handChecker.IsKokushiMusouWait(_hands[_nowPlayer]))
+                {
+                    Debug.Log("IsKokushiMusouWait yes");
+                    _buttonController.RiichiBtnActivate();
+                }
                 Debug.Log(_yaku.IsKokushiMusou(_hands[_nowPlayer]) ? "kkms yes" : "kkms no");
             
             
             
             
-                if (_handChecker.CanRiichi(_hands[_nowPlayer], handState)) _buttonController.RiichiBtnActivate();
             
                 _canChiList[_nowPlayer] = _handChecker.MakeCanChiList(_hands[_nowPlayer]);
                 _canPongList[_nowPlayer] = _handChecker.MakeCanPongList(_hands[_nowPlayer]);
                 _canKanList[_nowPlayer] = _handChecker.MakeCanKanList(_hands[_nowPlayer]);
-                if (_canChiList[_nowPlayer].Contains(_nowTsumoTile)) _buttonController.ChiBtnActivate();
-                if (_canPongList[_nowPlayer].Contains(_nowTsumoTile)) _buttonController.PongBtnActivate();
-                if (_canKanList[_nowPlayer].Contains(_nowTsumoTile)) _buttonController.KanBtnActivate();
+                if(_canChiList[_nowPlayer].Contains(_nowTsumoTile)) _buttonController.ChiBtnActivate();
+                if(_canPongList[_nowPlayer].Contains(_nowTsumoTile)) _buttonController.PongBtnActivate();
+                if(_canKanList[_nowPlayer].Contains(_nowTsumoTile)) _buttonController.KanBtnActivate();
 
 
-
+                _buttonController.RonBtnActivate();
             
             
                 _userTime = WaitTime;
                 _isTurnReady = true;
                 _nowTime.text = _isMyTurn ? _userTime.ToString() : "";
-                _buttonController.AllBtnDeactivate();
+                if(!_isMyTurn) _buttonController.AllBtnDeactivate();
             }
         }
     }
@@ -161,9 +165,6 @@ public class GamePlay : MonoBehaviour
             _canChiList.Add(_handChecker.MakeCanChiList(_hands[i]));
             _canPongList.Add(_handChecker.MakeCanPongList(_hands[i]));
             _canKanList.Add(_handChecker.MakeCanKanList(_hands[i]));
-            if (_canChiList[i].Contains(_nowTsumoTile)) _buttonController.ChiBtnActivate();
-            if (_canPongList[i].Contains(_nowTsumoTile)) _buttonController.PongBtnActivate();
-            if (_canKanList[i].Contains(_nowTsumoTile)) _buttonController.KanBtnActivate();
         }
         
     }
@@ -184,13 +185,24 @@ public class GamePlay : MonoBehaviour
     {
         TileDisplay.DoraDisplay(_dora[num], num, true);
     }
-    
+
+    private void ReadyCalc()
+    {
+        
+        //DoCalc(List<string> hand, List<string> pattern, string waitType, bool didHuro, int someoneRiichi, int howLong)
+        //_pointCalculator.DoCalc(_hands[_winUser]);
+    }
+    public void UserWin()
+    {
+        _winGame = true;
+    }
     
     //게임 끝났을때 점수 계산
     public void GameEnd()
     {
         _gameEnd = true;
     }
+
 
     public bool IsOyaWin()
     {
