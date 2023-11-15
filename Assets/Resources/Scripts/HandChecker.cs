@@ -50,6 +50,7 @@ public class HandChecker
         if (handState.ContainsKey(41)) return true;
         if (handState.ContainsKey(40)) return true;
         if (handState.ContainsKey(32)) return true;
+        if (handState.ContainsKey(31)) return true;//총 11개 타일, 남은 타일 3개 중에 몸통이 될 수 있는 경우가 있으면 true 
 
 
         return false;
@@ -57,45 +58,79 @@ public class HandChecker
 
     public bool IsKokushiMusouWait(List<string> hand)
     {
-        List<string> kokushiMusou = new List<string>
-            { "m1", "m9", "p1", "p9", "s1", "s9", "e", "s", "w", "n", "p", "f", "c" };
-        string forRiichi = "";
-        string forWinTile = "";
-        bool kokushiCheck = false;
-        bool kokushiDouble = false;
-        int kokushiCnt = 0;
-
-        for (int i = 0; i < hand.Count; i++)
-        {
-            if (hand[i].Equals(kokushiMusou[kokushiCnt])) ++kokushiCnt;
-            else
-            {
-                if (kokushiMusou.Contains(hand[i]))
-                {
-                    if (hand[i].Equals(hand[i - 1]))
-                    {
-                        if (!kokushiDouble) kokushiDouble = true;
-                        else return false;
-                    }
-                    else
-                    {
-                        forWinTile = kokushiMusou[kokushiCnt++];
-                        --i;
-                    }
-                }
-                else
-                {
-                    if (!kokushiCheck)
-                    {
-                        forRiichi = hand[i];
-                        kokushiCheck = true;
-                    }
-                    else return false;
-                }
-            }
-        }
-        return true;
-    }
+        if (_yaku.IsKokushiMusou(hand)) return true;
+               List<string> kokushiMusou = new List<string>
+                   { "m1", "m9", "p1", "p9", "s1", "s9", "e", "s", "w", "n", "p", "f", "c" };
+               //1199 있으면 둘 다 같은곳으로 가서 이상해짐
+               //틀린거 2개 있으면 그냥 아니고
+               //틀린거 하나 맞는거 하나 있는 경우도 있음
+               List<string> forRiichi = new List<string>();//여기에 들어가는 거에 kokushiMusou안에 없는게 버릴 타일
+               List<string> forWinTile = new List<string>();//13면팅일수도? 여기에 아무것도 안들어가면 13면팅
+               bool kokushiTenpai = true;
+               bool kokushiDouble = true;
+               int kokushiCnt = 0;
+           
+               for (int i = 0; i < hand.Count; i++)
+               {
+                   if (kokushiCnt == 13)//마지막 중이 중복이면 13까지 가서 오류가 나기에 
+                   {
+                       if (hand[i].Equals("c") && hand[i].Equals(hand[i - 1]) && kokushiDouble)
+                       {
+                           kokushiDouble = !kokushiDouble;
+                           forRiichi.Add(hand[i]);
+                       }
+                       else
+                       {
+                           if (kokushiTenpai)
+                           {
+                               kokushiTenpai = !kokushiTenpai;
+                               forRiichi.Add(hand[i]);
+                           }
+                           else return false;
+                       }
+                       continue;
+                   }
+                   if (hand[i].Equals(kokushiMusou[kokushiCnt])) ++kokushiCnt;
+                   else
+                   {
+                       if (kokushiMusou.Contains(hand[i]))
+                       {
+                           if (hand[i].Equals(hand[i - 1]))
+                           {
+                               if (kokushiDouble)
+                               {
+                                   kokushiDouble = !kokushiDouble;
+                                   forRiichi.Add(hand[i]);
+                               }
+                               else
+                               {
+                                   if (kokushiTenpai)
+                                   {
+                                       kokushiTenpai = !kokushiTenpai;
+                                       forRiichi.Add(hand[i]);
+                                   }
+                                   else return false;
+                               }
+                           }
+                           else
+                           {
+                               forWinTile.Add(kokushiMusou[kokushiCnt++]);
+                               --i;
+                           }
+                       }
+                       else
+                       {
+                           if (kokushiTenpai)
+                           {
+                               kokushiTenpai = !kokushiTenpai;
+                               forRiichi.Add(hand[i]);
+                           }
+                           else return false;
+                       }
+                   }
+               }
+               return true;
+           }
     public Dictionary<int, List<string>> NowHandState(List<string> hand)
     {
         Dictionary<int, List<string>> result = new Dictionary<int, List<string>>();
@@ -307,7 +342,6 @@ public class HandChecker
         //중복 제거(.distinct)하고 return
         return result.Distinct().ToList();
     }
-
     string MakeSequence(string seq, int max)
     {
         Dictionary<string, int> mps = new Dictionary<string, int> { { "m", 0 }, { "p", 30 }, { "s", 60 } }; //손패 순서
