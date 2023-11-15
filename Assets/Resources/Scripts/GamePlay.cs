@@ -58,6 +58,7 @@ public class GamePlay : MonoBehaviour
         UpdateTileLeft();//남은 타일 갯수 표시
         //천화 지화 확인하기
         MakeCanHuroList();
+        _buttonController.AllBtnDeactivate();
         
         StartCoroutine(MyUpdateCrt());//게임 시작
     }
@@ -101,7 +102,7 @@ public class GamePlay : MonoBehaviour
         }
         else
         {
-            if (_tiles.GetTileLeft() < 0)
+            if (_tiles.GetTileLeft() <= 0)
             {
                 _gameEnd = true;
             }
