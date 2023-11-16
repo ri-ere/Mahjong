@@ -8,7 +8,7 @@ public class Tiles
     private int _tileLeft = 70;//남은 츠모용 변수
     private bool _ryuukyoku = false;
     
-    //전체 패 선언, 총 139개
+    //전체 패 선언, 총 136개 + 아카도라 3개
     private readonly List<string> _allTiles = new List<string>()
     {
         "m1", "m1", "m1", "m1", "m2", "m2", "m2", "m2", "m3", "m3", "m3", "m3",
@@ -24,7 +24,7 @@ public class Tiles
         "s7", "s7", "s7", "s7", "s8", "s8", "s8", "s8", "s9", "s9", "s9", "s9",
         
         "e", "e", "e", "e", "s", "s", "s", "s", "w", "w", "w", "w", "n", "n", "n", "n",
-        "p", "p", "p", "p", "f", "f", "f", "f", "c", "c", "c", "c", "m5r", "p5r", "s5r"
+        "p", "p", "p", "p", "f", "f", "f", "f", "c", "c", "c", "c"//, "m5r", "p5r", "s5r"
     };
     //게임 끝났는지 확인
     public bool IsGameEnd()
