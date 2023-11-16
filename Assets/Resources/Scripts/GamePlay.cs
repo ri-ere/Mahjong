@@ -135,9 +135,9 @@ public class GamePlay : MonoBehaviour
                 // _canChiList[_nowPlayer] = _handChecker.MakeCanChiList(_hands[_nowPlayer]);
                 // _canPongList[_nowPlayer] = _handChecker.MakeCanPongList(_hands[_nowPlayer]);
                 // _canKanList[_nowPlayer] = _handChecker.MakeCanKanList(_hands[_nowPlayer]);
-                if(_canChiList[_nowPlayer].Contains(_nowTsumoTile)) _buttonController.ChiBtnActivate();
-                if(_canPongList[_nowPlayer].Contains(_nowTsumoTile)) _buttonController.PongBtnActivate();
-                if(_canKanList[_nowPlayer].Contains(_nowTsumoTile)) _buttonController.KanBtnActivate();
+                // if(_canChiList[_nowPlayer].Contains(_nowTsumoTile)) _buttonController.ChiBtnActivate();
+                // if(_canPongList[_nowPlayer].Contains(_nowTsumoTile)) _buttonController.PongBtnActivate();
+                // if(_canKanList[_nowPlayer].Contains(_nowTsumoTile)) _buttonController.KanBtnActivate();
 
 
                 _buttonController.RonBtnActivate();
