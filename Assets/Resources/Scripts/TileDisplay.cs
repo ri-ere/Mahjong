@@ -56,7 +56,6 @@ public class TileDisplay : MonoBehaviour
         float yRiichiPosCorrector = 0.06f;
         float[] xRiichiPos = {-1.25f, -1.7f, -2.15f, -2.6f, -3.05f, -3.5f};
         float[] yRiichiPos = {-1.19f, -1.64f, -2.09f, -2.54f, -2.99f, -3.44f};
-        
         int x = howMany % 6;
         int y = howMany / 6;
         if (isRiichi)

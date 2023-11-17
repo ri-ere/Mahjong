@@ -42,9 +42,6 @@ public class HandChecker
         if (_yaku.IsKokushiMusou(hand)) return true;
         List<string> kokushiMusou = new List<string>
            { "m1", "m9", "p1", "p9", "s1", "s9", "e", "s", "w", "n", "p", "f", "c" };
-        //1199 있으면 둘 다 같은곳으로 가서 이상해짐
-        //틀린거 2개 있으면 그냥 아니고
-        //틀린거 하나 맞는거 하나 있는 경우도 있음
         List<string> forRiichi = new List<string>();//여기에 들어가는 거에 kokushiMusou안에 없는게 버릴 타일
         List<string> forWinTile = new List<string>();//13면팅일수도? 여기에 아무것도 안들어가면 13면팅
         bool kokushiTenpai = true;
