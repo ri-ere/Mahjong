@@ -6,7 +6,7 @@ public class Huro : HandChecker
     //CanRon()
 
 
-    List<string> WhatToChi(List<string> hand, string huroTile)
+    public List<string> WhatToChi(List<string> hand, string huroTile)
     {
         List<string> result = new List<string>();
         List<string> numbers = (from tmp in hand where tmp.Length >= 2 select tmp[..2]).Distinct().ToList();
@@ -57,11 +57,11 @@ public class Huro : HandChecker
         }
         return result;
     }
-    string MakeChi(string huroTile)
+    public string MakeChi(string huroTile)
     {
         return "s-" + huroTile;
     }
-    string MakePong(string huroTile)
+    public string MakePong(string huroTile)
     {
         return "t-" + huroTile + huroTile;
     }
@@ -99,7 +99,7 @@ public class Huro : HandChecker
         }
         return result;
     }
-    List<string> NotMyTurnCanHuroList(List<string> hand)
+    public List<string> NotMyTurnCanHuroList(List<string> hand)
     {
         List<string> result = new List<string>();
         foreach (string tile in MakeCanPongList(hand))
@@ -117,7 +117,7 @@ public class Huro : HandChecker
 
         return result.Distinct().ToList();
     }
-    List<string> MyTurnCanHuroList(List<string> hand, List<string> huroList)
+    public List<string> MyTurnCanHuroList(List<string> hand, List<string> huroList)
     {
         List<string> result = new List<string>();
         //쇼밍캉 - 퐁한거 있는거에 추가
@@ -153,7 +153,7 @@ public class Huro : HandChecker
         List<string> result = WhatIsTriplet(hand).Distinct().ToList();
         return result;
     }
-    List<string> MakeCanShouminKanList(List<string> pongedList)//쇼밍깡, 퐁한거에 추가
+    public List<string> MakeCanShouminKanList(List<string> pongedList)//쇼밍깡, 퐁한거에 추가
     {
         List<string> result = new List<string>();
         foreach (string pong in pongedList)
