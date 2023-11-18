@@ -29,12 +29,13 @@ public class GamePlay : MonoBehaviour
     private List<List<string>> _hands = new List<List<string>>();
     private List<List<string>> _canHuroTiles = new List<List<string>>();
     private readonly List<int> _discardNums = new List<int>();
+    private List<List<string>> _discardTiles = new List<List<string>>();
     private bool _canHuro = false;
     private bool _huroBtnOn = false;
     
     private bool _isMyTurn;
     private int _userTime;
-    private int _huroTime;
+    private int _huroTime = 3;
     private const int WaitTime = 5;
     private const int HuroTime = 3;
     private bool _isTurnReady = false;
@@ -86,7 +87,11 @@ public class GamePlay : MonoBehaviour
     {
         // TODO: 리치했을때 츠모기리 하는걸로 만들기
         //손패를 받았을때 14개의 패로 승리 가능인지 확인?
-        if(!_canHuro && !_isMyTurn)
+        if (_canHuro)
+        {
+            Debug.Log("can huro " + _nowDahaiTile);
+        }
+        if(!_canHuro)
         {
             if(_isTurnReady)
             {
@@ -122,66 +127,133 @@ public class GamePlay : MonoBehaviour
                     _nowTsumoTile = _tiles.Tsumo();//타일에서 뽑기
                     _hands[_nowPlayer].Add(_nowTsumoTile);//손패에 추가
                     _hands[_nowPlayer] = HandArrange(_hands[_nowPlayer]);//손패 정리
+                    HandCheck(_hands[_nowPlayer]);
                     UpdateTileLeft();//남은 타일 갯수 표시
                     TileDisplay.TsumoDisplay(_nowTsumoTile, _nowPlayer);//츠모한거 오브젝트 생성
                     
                     _userTime = WaitTime;
                     _isTurnReady = true;
-                    _nowTime.text = _isMyTurn ? _userTime.ToString() : "";
-                    if(!_isMyTurn) _buttonController.AllBtnDeactivate();
+                    // _nowTime.text = _isMyTurn ? _userTime.ToString() : "";
+                    // if(!_isMyTurn) _buttonController.AllBtnDeactivate();
                     
                     _canHuroTiles[_nowPlayer] = _huro.MyTurnCanHuroList(_hands[_nowPlayer], _canHuroTiles[_nowPlayer]);
-                    if (_isMyTurn)
+                    if (_isMyTurn)//내턴일때 후로 가능 타일 확인 츠모승리랑 리치도 확인
                     {
+                        _nowTime.text = _userTime.ToString();
                         if (_canHuroTiles[_nowPlayer].Count > 0)
                         {
                             MyTurnWhatCanBeHuro();
                         }
                     }
+                    else//내턴 아닐때
+                    {
+                        _nowTime.text = "";
+                        _buttonController.AllBtnDeactivate();
+                    }
                     
                 }
             }
         }
-        else
+        else//내 턴 아닐때 후로 가능한 경우에 실행
         {
-            _nowTime.text = HuroTime.ToString();
-            if (!_huroBtnOn)
+            if (_nowPlayer == 1)//내가 버린 타일이면 끝내기
             {
-                if (HuroTime < 1)
-                {
-                    _canHuro = false;
-                }
-                else
-                {
-                    --_huroTime;
-                }
+                _canHuro = false;
             }
             else
             {
-                NotMyTurnWhatCanBeHuro();
+                if(_huroBtnOn) Debug.Log("huro btn on");
+                //퐁캉이면 true
+                if (!_huroBtnOn)
+                {
+                    bool isOn = false;
+                    Debug.Log("button check");
+                    HandCheck(_huro.MakeCanChiList(_hands[0]));
+                    if (_huro.MakeCanChiList(_hands[0]).Contains(_nowDahaiTile) && _isMyTurn)
+                    {
+                        Debug.Log("can chi");
+                        _buttonController.ChiBtnActivate();
+                        isOn = true;
+                    }
 
-                _huroTime = HuroTime;
-                _huroBtnOn = true;
+                    HandCheck(_huro.MakeCanPongList(_hands[0]));
+                    if (_huro.MakeCanPongList(_hands[0]).Contains(_nowDahaiTile))
+                    {
+                        Debug.Log("can pong");
+                        _buttonController.PongBtnActivate();
+                        isOn = true;
+                    }
+
+                    HandCheck(_huro.MakeCanDaiminKanList(_hands[0]));
+                    if (_huro.MakeCanDaiminKanList(_hands[0]).Contains(_nowDahaiTile))
+                    {
+                        Debug.Log("can DK");
+                        _buttonController.KanBtnActivate();
+                        isOn = true;
+                    }
+
+                    HandCheck(_huro.MakeCanRonList(_hands[0]));
+                    if (_huro.MakeCanRonList(_hands[0]).Contains(_nowDahaiTile))
+                    {
+                        Debug.Log("can Ron");
+                        _buttonController.RonBtnActivate();
+                        isOn = true;
+                    }
+                    _huroBtnOn = true;
+                    if (isOn)//후로 가능
+                    {
+                        Debug.Log("is on");
+                        _nowTime.text = _huroTime.ToString();
+                        _huroTime = HuroTime;
+                        _huroBtnOn = true;
+                    }
+                    else
+                    {
+                        Debug.Log("is not on");
+                        _huroBtnOn = false;
+                        _canHuro = false;
+                    }
+                }
+                else
+                {
+                    _nowTime.text = _huroTime.ToString();
+                    if (_huroTime < 1)
+                    {
+                        _canHuro = false;
+                        _huroBtnOn = false;
+                        _nowTime.text = "";
+                    }
+                    else
+                    {
+                        --_huroTime;
+                    }
+                }
             }
         }
     }
 
-    private void HuroCheck()
+    private void NotMyTurnWhatCanBeHuro(List<string> hand)
     {
+        if (_huro.MakeCanChiList(hand).Count != 0 && _nowPlayer == 0) _buttonController.ChiBtnActivate();
+        if (_huro.MakeCanPongList(hand).Count != 0) _buttonController.PongBtnActivate();
+        if (_huro.MakeCanDaiminKanList(hand).Count != 0) _buttonController.KanBtnActivate();
+        if (_huro.MakeCanRonList(hand).Count != 0) _buttonController.RonBtnActivate();
+    }
+    private void MyTurnWhatCanBeHuro()
+    {
+        if (_huro.MakeCanShouminKanList(_canHuroTiles[_nowPlayer]).Count != 0) _buttonController.KanBtnActivate();
+        if (_huro.MakeCanAnKanList(_hands[_nowPlayer]).Count != 0) _buttonController.KanBtnActivate();
+
+    }
+    private void HuroCheck()//버린 타일로 플레이어가 후로 가능한지 확인하는 코드
+    {
+        HandCheck(_canHuroTiles[0]);
         if (_canHuroTiles[_playerNum].Contains(_nowDahaiTile))
         {
             _canHuro = true;
         }
     }
 
-    private void MyTurnWhatCanBeHuro()
-    {
-        if(_huro.MakeCanShouminKanList())
-    }
-    private void NotMyTurnWhatCanBeHuro()
-    {
-        
-    }
     private void MakeFirstCanHuroList()
     {
         for (int i = 0; i < 4; i++)
@@ -245,10 +317,12 @@ public class GamePlay : MonoBehaviour
     {
         //뒷면엔 클릭할때 이루어지는 상호작용이 없어서 안버려짐
         _nowDahaiTile = tileName;//후로용 변수
-        _hands[user].RemoveAt(_hands[user].IndexOf(tileName));
+        _hands[user].RemoveAt(_hands[user].IndexOf(tileName));//손패에서 타일 제거
+        _discardTiles[_nowPlayer].Add(tileName);//버린 타일에 추가
         TileDisplay.DahaiDisplay(tileName, user, ++_discardNums[user], false);
         _hands[user] = HandArrange(_hands[user]);//손패 정리
         TileDisplay.HandDisplay(_hands[user], user);
+        
         _canHuroTiles[_nowPlayer] = _huro.NotMyTurnCanHuroList(_hands[_nowPlayer]);
         
         ++_nowPlayer;
@@ -288,15 +362,14 @@ public class GamePlay : MonoBehaviour
         for (int i = 0; i < 4; ++i)
         {
             _hands.Add(_tiles.GetFirstHand());
+            _discardTiles.Add(new List<string>());
             _hands[i] = HandArrange(_hands[i]);//손패 정리
             _discardNums.Add(-1);
             TileDisplay.HandDisplay(_hands[i], i);
         }
 
-        _hands[0] = new List<string>
-        {
-            "m1", "m9", "p1", "p9", "s1", "s9", "e", "s", "w", "n", "p", "f", "c"
-        };
+        // _hands[0] = new List<string>
+        // { "m1", "m9", "p1", "p9", "s1", "s9", "e", "s", "w", "n", "p", "f", "c" };
     }
     //전체 핸드 로그로 확인하는 함수
     private void HandCheck(List<string> hand)
