@@ -4,7 +4,11 @@ using System.Linq;
 public class Huro : HandChecker
 {
     //CanRon()
-
+    public List<string> MakeCanRonList(List<string> hand)
+    {
+        List<string> result = new List<string>();
+        return result;
+    }
 
     public List<string> WhatToChi(List<string> hand, string huroTile)
     {
@@ -114,6 +118,10 @@ public class Huro : HandChecker
         {
             result.Add(tile);
         }
+        foreach (string tile in MakeCanRonList(hand))
+        {
+            result.Add(tile);
+        }
 
         return result.Distinct().ToList();
     }
@@ -133,7 +141,7 @@ public class Huro : HandChecker
         }
         return result;
     }
-    List<string> MakeCanChiList(List<string> hand)
+    public List<string> MakeCanChiList(List<string> hand)
     {
         List<string> result = new List<string>();
         List<string> numbers = hand.Select(tile => tile.Length > 2 ? tile[..2] : tile).ToList();
@@ -143,12 +151,12 @@ public class Huro : HandChecker
 
         return result.Distinct().ToList();
     }
-    List<string> MakeCanPongList(List<string> hand)
+    public List<string> MakeCanPongList(List<string> hand)
     {
         List<string> result = WhatIsPair(hand).Distinct().ToList();
         return result;
     }
-    List<string> MakeCanDaiminKanList(List<string> hand)//대명깡, so 커츠 있는거에 추가
+    public List<string> MakeCanDaiminKanList(List<string> hand)//대명깡, so 커츠 있는거에 추가
     {
         List<string> result = WhatIsTriplet(hand).Distinct().ToList();
         return result;
@@ -156,16 +164,18 @@ public class Huro : HandChecker
     public List<string> MakeCanShouminKanList(List<string> pongedList)//쇼밍깡, 퐁한거에 추가
     {
         List<string> result = new List<string>();
+        if (pongedList.Count == 0) return result;
         foreach (string pong in pongedList)
         {
-            if (pong.Length < 5 && pong[..2].Equals("t-"))
+            if (pong.Length is < 5 and > 1)
             {
-                result.Add(pong[2..4]);
+                if(pong[..2].Equals("t-"))
+                    result.Add(pong[2..4]);
             }
         }
         return result;
     }
-    List<string> MakeCanAnKanList(List<string> hand)//안깡, 패 4개
+    public List<string> MakeCanAnKanList(List<string> hand)//안깡, 패 4개
     {
         List<string> result = new List<string>();
         List<string> pairs = WhatIsPair(hand);
