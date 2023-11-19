@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 
-public class Yaku
+public class Yaku : HandChecker
 {
-    public bool HasYaku(string hand, bool menzen)
+    public static bool HasYaku(string hand, bool menzen)
     {
         List<string> tiles = new List<string>();
         foreach (string tile in hand.Split(","))
@@ -45,8 +46,11 @@ public class Yaku
         return false;
     }
 
-
-    public bool IsKokushiMusou(List<string> hand)
+    public bool IsChiitoitsu(List<string> hand)
+    {
+        return WhatIsPair(hand).Distinct().ToList().Count == 7;
+    }
+    public static bool IsKokushiMusou(List<string> hand)
     {
         const string kokushiMusou = "m1,m9,p1,p9,s1,s9,e,s,w,n,p,f,c,";
         string tiles = hand.Distinct().ToList().Aggregate("", (current, tile) => current + tile + ",");
