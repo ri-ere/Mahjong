@@ -31,11 +31,35 @@ public class TileClick : MonoBehaviour
 
     private void Update()
     {
-        if(_isDoubleClicked && _gamePlay.GetIsMyTurn() && tag.Equals("0"))
+        if(_isDoubleClicked && _gamePlay.GetIsMyTurn() && tag.Equals("0") && _gamePlay.GetDoneHuro() && _gamePlay.GetIsTurnReady())
         {
             string[] tile = name.Split("(");//오브젝트가 ~~(Clone)으로 생성돼서 "("를 기준으로 자름
             int user = int.Parse(tag);
             if(user == 0) _gamePlay.Dahai(tile[0], user);//잘린 문자열이 0번에 들어있어서 tile[0]을 넘김
+            _isDoubleClicked = false;
+        }
+        else if (_isDoubleClicked && _gamePlay.GetIsMyTurn() && tag.Equals("Huro0"))
+        {
+            int chiName = int.Parse(tag[^1..]);
+            _gamePlay.OnClickedWantToChi(chiName);
+            _isDoubleClicked = false;
+        }
+        else if (_isDoubleClicked && _gamePlay.GetIsMyTurn() && tag.Equals("Huro1"))
+        {
+            int chiName = int.Parse(tag[^1..]);
+            _gamePlay.OnClickedWantToChi(chiName);
+            _isDoubleClicked = false;
+        }
+        else if (_isDoubleClicked && _gamePlay.GetIsMyTurn() && tag.Equals("Huro2"))
+        {
+            int chiName = int.Parse(tag[^1..]);
+            _gamePlay.OnClickedWantToChi(chiName);
+            _isDoubleClicked = false;
+        }
+        else if (_isDoubleClicked && _gamePlay.GetIsMyTurn() && tag.Equals("Huro0Kan"))
+        {
+            // int chiName = int.Parse(tag[^1..]);
+            // _gamePlay.OnClickedWantToChi(chiName);
             _isDoubleClicked = false;
         }
         else _isDoubleClicked = false;
