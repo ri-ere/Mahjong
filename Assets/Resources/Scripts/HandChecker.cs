@@ -3,12 +3,11 @@ using System.Linq;
 
 public class HandChecker
 {
-    private Yaku _yaku = new Yaku();
     public bool CanWin(List<string> hand, Dictionary<int, List<string>> handState, bool isMenzen)
     {
         //치또이츠 확인
         if (WhatIsPair(hand).Count == 7) return true;
-        if (_yaku.IsKokushiMusou(hand)) return true;
+        if (Yaku.IsKokushiMusou(hand)) return true;
         
         //이거 고쳐야함 저거랑
         if (handState.ContainsKey(41))
@@ -16,7 +15,7 @@ public class HandChecker
             foreach (var tiles in handState[41])
             {
                 
-                if (_yaku.HasYaku(tiles, isMenzen)) return true;
+                if (Yaku.HasYaku(tiles, isMenzen)) return true;
             }
         }
         
@@ -39,7 +38,7 @@ public class HandChecker
 
     public bool IsKokushiMusouWait(List<string> hand)
     {
-        if (_yaku.IsKokushiMusou(hand)) return true;
+        if (Yaku.IsKokushiMusou(hand)) return true;
         List<string> kokushiMusou = new List<string>
            { "m1", "m9", "p1", "p9", "s1", "s9", "e", "s", "w", "n", "p", "f", "c" };
         List<string> forRiichi = new List<string>();//여기에 들어가는 거에 kokushiMusou안에 없는게 버릴 타일
