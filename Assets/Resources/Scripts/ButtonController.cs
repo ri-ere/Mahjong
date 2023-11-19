@@ -29,12 +29,13 @@ public class ButtonController : MonoBehaviour
     public void ChiBtnClicked()
     {
         _gamePlay = GameObject.Find("GamePlay(Clone)").GetComponent<GamePlay>();
-        Debug.Log("Chi button clicked");
+        _gamePlay.OnClickedChiButton();
+        
     }
     public void PongBtnClicked()
     {
         _gamePlay = GameObject.Find("GamePlay(Clone)").GetComponent<GamePlay>();
-        Debug.Log("Pong button clicked");
+        _gamePlay.OnClickedPongButton();
     }
     public void KanBtnClicked()
     {
