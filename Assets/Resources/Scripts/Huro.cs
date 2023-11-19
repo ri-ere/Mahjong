@@ -10,7 +10,7 @@ public class Huro : HandChecker
         return result;
     }
 
-    public List<string> WhatToChi(List<string> hand, string huroTile)
+    public static List<string> WhatToChi(List<string> hand, string huroTile)
     {
         List<string> result = new List<string>();
         List<string> numbers = (from tmp in hand where tmp.Length >= 2 select tmp[..2]).Distinct().ToList();
@@ -61,14 +61,7 @@ public class Huro : HandChecker
         }
         return result;
     }
-    public string MakeChi(string huroTile)
-    {
-        return "s-" + huroTile;
-    }
-    public string MakePong(string huroTile)
-    {
-        return "t-" + huroTile + huroTile;
-    }
+    //후로 타일 변경해서 바꿔야함
     public List<string> DoKan(List<string> huroHand, string huroTile, bool isMyTurn)//huroHand 재구축
     {
         List<string> result = new List<string>();
@@ -167,7 +160,7 @@ public class Huro : HandChecker
         if (pongedList.Count == 0) return result;
         foreach (string pong in pongedList)
         {
-            if (pong.Length is < 5 and > 1)
+            if (pong.Length is < 10 and > 1)//길이 늘어날때마다 이거 변경함
             {
                 if(pong[..2].Equals("t-"))
                     result.Add(pong[2..4]);
