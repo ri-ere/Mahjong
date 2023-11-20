@@ -21,7 +21,7 @@ public class GamePlay : MonoBehaviour
     private bool _winGame = false;
     private bool _gameEnd = false;//gamestate로 옮기기
     private int _nowWind;//gamestate로 옮기기
-    private bool[] _isRiichi;//gamestate로 옮기기
+    private List<bool> _isRiichi;//gamestate로 옮기기
     private int _nowPlayer;
     private int _playerNum = 0;
     
@@ -140,7 +140,18 @@ public class GamePlay : MonoBehaviour
                     _canHuroTiles[_nowPlayer] = _huro.MyTurnCanHuroList(_hands[_nowPlayer], _canHuroTiles[_nowPlayer]);
                     if (_isMyTurn)//내턴일때 후로 가능 타일 확인 츠모승리랑 리치도 확인
                     {
-                        _nowTime.text = _userTime.ToString();
+                        
+                        if (_isRiichi[0])
+                        {
+                            if (_handChecker.CanWin(_hands[0], _huroTiles[0]))
+                            {
+                                _buttonController.RonBtnActivate();
+                            }
+                        }
+                        else
+                        {
+                            _nowTime.text = _userTime.ToString();
+                        }
                         if (_huro.MakeCanShouminKanList(_canHuroTiles[_nowPlayer]).Count != 0)
                         {
                             _buttonController.KanBtnActivate();
@@ -171,7 +182,7 @@ public class GamePlay : MonoBehaviour
                 {
                     Debug.Log("button check");
                     bool isOn = false;
-                    if (_huro.MakeCanChiList(_hands[0]).Contains(_nowDahaiTile) && _isMyTurn)
+                    if (Huro.MakeCanChiList(_hands[0]).Contains(_nowDahaiTile) && _isMyTurn)
                     {
                         _buttonController.ChiBtnActivate();
                         isOn = true;
@@ -420,6 +431,7 @@ public class GamePlay : MonoBehaviour
             _discardTiles.Add(new List<string>());
             _hands[i] = HandArrange(_hands[i]);//손패 정리
             _discardNums.Add(-1);
+            _isRiichi.Add(false);
             TileDisplay.HandDisplay(_hands[i], i);
         }
 

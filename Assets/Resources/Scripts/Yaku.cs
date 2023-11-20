@@ -46,7 +46,7 @@ public class Yaku : HandChecker
         return false;
     }
 
-    public bool IsChiitoitsu(List<string> hand)
+    public static bool IsChiitoitsu(List<string> hand)
     {
         return WhatIsPair(hand).Distinct().ToList().Count == 7;
     }

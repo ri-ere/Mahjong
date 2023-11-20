@@ -134,7 +134,7 @@ public class Huro : HandChecker
         }
         return result;
     }
-    public List<string> MakeCanChiList(List<string> hand)
+    public static List<string> MakeCanChiList(List<string> hand)
     {
         List<string> result = new List<string>();
         List<string> numbers = hand.Select(tile => tile.Length > 2 ? tile[..2] : tile).ToList();
@@ -182,8 +182,8 @@ public class Huro : HandChecker
         }
         return result;
     }
-    
-    List<string> MChiMaker(List<string> numbers)
+
+    static List<string> MChiMaker(List<string> numbers)
     {
         List<string> result = new List<string>();
         //변짱 대기
@@ -230,7 +230,8 @@ public class Huro : HandChecker
         }
         return result;
     }
-    List<string> PChiMaker(List<string> numbers)
+
+    static List<string> PChiMaker(List<string> numbers)
     {
         List<string> result = new List<string>();
         //변짱 대기
@@ -277,7 +278,8 @@ public class Huro : HandChecker
         }
         return result;
     }
-    List<string> SChiMaker(List<string> numbers)
+
+    static List<string> SChiMaker(List<string> numbers)
     {
         List<string> result = new List<string>();
         //변짱 대기

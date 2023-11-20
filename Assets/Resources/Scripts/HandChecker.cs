@@ -1,39 +1,123 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 
 public class HandChecker
 {
-    public bool CanWin(List<string> hand, Dictionary<int, List<string>> handState, bool isMenzen)
+    public bool CanWin(List<string> hand, List<string> huroHand)
     {
+        Dictionary<int, List<string>> handState = NowHandState(hand, huroHand);
+        bool isMenzen = !huroHand.Any();//리스트에 요소가 존재하면 true
         //치또이츠 확인
-        if (WhatIsPair(hand).Count == 7) return true;
+        if (Yaku.IsChiitoitsu(hand)) return true;
+        //국사무쌍 확인
         if (Yaku.IsKokushiMusou(hand)) return true;
-        
-        //이거 고쳐야함 저거랑
-        if (handState.ContainsKey(41))
+        //다른 역 있는지 확인
+        if (handState.TryGetValue(41, out List<string> tiles))
         {
-            foreach (var tiles in handState[41])
+            foreach (string tile in tiles)
             {
-                
-                if (Yaku.HasYaku(tiles, isMenzen)) return true;
+                if (Yaku.HasYaku(tile, isMenzen)) return true;
             }
         }
-        
         return false;
     }
-    public bool CanRiichi(List<string> hand, Dictionary<int, List<string>> handState)
+    
+    public List<string> CanRiichi(List<string> hand, List<string> huroHand)
     {
+        List<string> result = new List<string>();
+        Dictionary<int, List<string>> handState = NowHandState(hand, huroHand);
         //치또이츠 확인
-        if (WhatIsPair(hand).Count == 6) return true;
-        if (IsKokushiMusouWait(hand)) return true;
+        //고쳐야함 같은거 3개 있을수도 있어서
+        if (WhatIsPair(hand).Distinct().ToList().Count == 6 && hand.Distinct().ToList().Count == 8)
+        {
+            
+        }
+        //국사 확인
+        if (IsKokushiMusouWait(hand))
+        {
+            
+        }
+        //if (handState.ContainsKey(41)) return true; canwin에서 확인
+        if (handState.TryGetValue(40, out List<string> hs40))
+        {
+            foreach (string dragon in hs40)
+            {
+                List<string> singleLeft = MakeLeftOverList(hand, dragon);
+                result.AddRange(singleLeft);
+            }
+        }
 
-        if (handState.ContainsKey(41)) return true;
-        if (handState.ContainsKey(40)) return true;
-        if (handState.ContainsKey(32)) return true;
-        if (handState.ContainsKey(31)) return true;//총 11개 타일, 남은 타일 3개 중에 몸통이 될 수 있는 경우가 있으면 true 
+        if (handState.TryGetValue(32, out var hs32))
+        {
+            foreach (string dragon in hs32)
+            {
+                string[] d = dragon.Split(",");
+                foreach (string tile in d)
+                {
+                    if (tile[0].Equals('h'))
+                    {
+                        result.Add(tile[2].Equals(tile[3]) ? tile[2].ToString() : tile[2..4]);
+                    }
+                }
+            }
+        }
+        //총 11개 타일, 남은 타일 3개 중에 몸통이 될 수 있는 경우가 있으면 true
+        if (handState.TryGetValue(31, out List<string> hs31))
+        {
+            foreach (string dragon in hs31)
+            {
+                List<string> canChi = Huro.MakeCanChiList(MakeLeftOverList(hand, dragon));
+                if (canChi.Any())
+                {
+                    result.AddRange(canChi);
+                }
+            }
+        }
+        return result;
+    }
 
-
-        return false;
+    public List<string> MakeLeftOverList(List<string> tiles, string deleteList)
+    {
+        string[] bodies = deleteList.Split(",");
+        foreach (string body in bodies)
+        {
+            switch (body[0])
+            {
+                case 's':
+                    tiles.RemoveAt(tiles.IndexOf(body[2..4]));
+                    tiles.RemoveAt(tiles.IndexOf(body[4..6]));
+                    tiles.RemoveAt(tiles.IndexOf(body[6..8]));
+                    break;
+                case 't':
+                    if (body[2].Equals(body[3]))
+                    {
+                        tiles.RemoveAt(tiles.IndexOf(body[2..3]));
+                        tiles.RemoveAt(tiles.IndexOf(body[2..3]));
+                        tiles.RemoveAt(tiles.IndexOf(body[2..3]));
+                    }
+                    else
+                    {
+                        tiles.RemoveAt(tiles.IndexOf(body[2..4]));
+                        tiles.RemoveAt(tiles.IndexOf(body[2..4]));
+                        tiles.RemoveAt(tiles.IndexOf(body[2..4]));
+                    }
+                    break;
+                case 'h':
+                    if (body[2].Equals(body[3]))
+                    {
+                        tiles.RemoveAt(tiles.IndexOf(body[2..3]));
+                        tiles.RemoveAt(tiles.IndexOf(body[2..3]));
+                    }
+                    else
+                    {
+                        tiles.RemoveAt(tiles.IndexOf(body[2..4]));
+                        tiles.RemoveAt(tiles.IndexOf(body[2..4]));
+                    }
+                    break;
+            }
+        }
+        return tiles;
     }
 
     public bool IsKokushiMusouWait(List<string> hand)
@@ -108,7 +192,8 @@ public class HandChecker
         }
         return true;
     }
-    public Dictionary<int, List<string>> NowHandState(List<string> hand)
+    //key = 31, value = s-m2m3m4,t-s5,t-ee,h-w 이런식으로 출력
+    public Dictionary<int, List<string>> NowHandState(List<string> hand, List<string> huroHand)
     {
         Dictionary<int, List<string>> result = new Dictionary<int, List<string>>();
         List<string> tiles = hand.Select(tile => tile.Length >= 3 ? tile[..2] : tile).ToList(); //아카도라 제거
@@ -117,6 +202,7 @@ public class HandChecker
         {
             string setList = "";
             int weight = 0;
+            weight += huroHand.Count * 10;
             List<string> fakeHand = tiles;
             foreach (string seq in sequencePoss.Split(","))
             {
@@ -127,14 +213,16 @@ public class HandChecker
 
             foreach (string triplet in WhatIsTriplet(fakeHand))
             {
-                setList += "t-" + triplet + ",";
+                if(triplet.Length > 1) setList += "t-" + triplet + ",";
+                else setList += "t-" + triplet + triplet + ",";
                 weight += 10;
                 for (int i = 0; i < 3; i++) fakeHand.RemoveAt(fakeHand.IndexOf(triplet));
             }
 
             foreach (string pair in WhatIsPair(fakeHand))
             {
-                setList += "h-" + pair + ",";
+                if(pair.Length > 1) setList += "h-" + pair + ",";
+                else setList += "h-" + pair + pair + ",";
                 weight += 1;
                 for (int i = 0; i < 2; i++) fakeHand.RemoveAt(fakeHand.IndexOf(pair));
             }
@@ -147,16 +235,19 @@ public class HandChecker
         //슌츠가 없는 경우로 한번 더 실행
         string setListForSingle = "";
         int weightForSingle = 0;
+        weightForSingle += huroHand.Count * 10;
         foreach (string triplet in WhatIsTriplet(tiles))
         {
-            setListForSingle += "t-" + triplet + ",";
+            if(triplet.Length > 1) setListForSingle += "t-" + triplet + ",";
+            else setListForSingle += "t-" + triplet + triplet + ",";
             weightForSingle += 10;
             for (int i = 0; i < 3; i++) tiles.RemoveAt(tiles.IndexOf(triplet));
         }
 
         foreach (string pair in WhatIsPair(tiles))
         {
-            setListForSingle += "h-" + pair + ",";
+            if(pair.Length > 1) setListForSingle += "h-" + pair + ",";
+            else setListForSingle += "h-" + pair + pair + ",";
             weightForSingle += 5;
             for (int i = 0; i < 2; i++) tiles.RemoveAt(tiles.IndexOf(pair));
         }
@@ -197,7 +288,7 @@ public class HandChecker
     }
 
     //또이츠들 이름 리스트로 넣어서 반환
-    protected List<string> WhatIsPair(List<string> tiles)
+    protected static List<string> WhatIsPair(List<string> tiles)
     {
         List<string> singleTile = new List<string>();
         List<string> pair = new List<string>();

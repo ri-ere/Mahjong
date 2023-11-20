@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 public class TileDisplay : MonoBehaviour
 {
@@ -129,7 +127,7 @@ public class TileDisplay : MonoBehaviour
         //d-p2-p20 대명깡이라서 마지막이 0
         for (int i = 0; i < huroTiles.Count; i++)
         {
-            if (huroTiles[i][0] == 'd' || huroTiles[i][0] == 'a')
+            if (huroTiles[i][0] == 'd' || huroTiles[i][0] == 'a')//d면 t로 바꾸고 마지막에d 추가하면 안되는디
             {
                 
             }
