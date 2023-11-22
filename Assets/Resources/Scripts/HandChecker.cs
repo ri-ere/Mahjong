@@ -4,21 +4,42 @@ using Unity.VisualScripting;
 
 public class HandChecker
 {
-    public bool CanWin(List<string> hand, List<string> huroHand, bool isRiichi)
+    public bool CanWin(List<string> hand, List<string> huroHand, string nowTile, bool isRiichi, int howLong, bool isMyTurn)//리치론이랑 따로 확인함
     {
-        Dictionary<int, List<string>> handState = NowHandState(hand, huroHand);
-        bool isMenzen = !huroHand.Any();//리스트에 요소가 존재하면 true
+        List<string> fakeHand = new List<string>();
+        List<string> hand13 = new List<string>();
+        fakeHand.AddRange(hand);
+        if (fakeHand.Count is 2 or 5 or 8 or 11 or 14)
+        {
+            if (fakeHand.Contains(nowTile))
+            {
+                fakeHand.RemoveAt(fakeHand.IndexOf(nowTile));
+            }
+        }
+        hand13.AddRange(fakeHand);
+        fakeHand.Add(nowTile);
+        fakeHand = Yaku.HandArranger(fakeHand);
+        Dictionary<int, List<string>> handState = NowHandState(fakeHand, huroHand);
+
+        bool isMenzen = true;
+        foreach (string dragon in huroHand)
+        {
+            if (dragon[0].Equals('a')) continue;
+            else isMenzen = false;
+        }
         //치또이츠 확인
-        if (Yaku.IsChiitoitsu(hand)) return true;
+        if (Yaku.Chiitoitsu(hand13, nowTile) && isMenzen) return true;
         //국사무쌍 확인
-        if (Yaku.IsKokushiMusou(hand)) return true;
+        if (Yaku.IsKokushiMusou(hand) && isMenzen) return true;
         //다른 역 있는지 확인
         if (handState.TryGetValue(41, out List<string> tiles))
         {
             if (isRiichi) return true;
             foreach (string tile in tiles)
             {
-                if (Yaku.HasYaku(hand, huroHand, tile, isMenzen)) return true;
+                List<string> handDragons = new List<string>();
+                handDragons.AddRange(tile.Split(","));
+                if (Yaku.HasYaku(hand, handDragons, huroHand, nowTile,howLong, isMenzen, isMyTurn)) return true;
             }
         }
         return false;
@@ -139,60 +160,6 @@ public class HandChecker
         }
         return result.Distinct().ToList();
     }
-    public List<string> CanRiichi(List<string> hand, List<string> huroHand)
-    {
-        List<string> result = new List<string>();
-        Dictionary<int, List<string>> handState = NowHandState(hand, huroHand);
-        //치또이츠 확인
-        //고쳐야함 같은거 3개 있을수도 있어서
-        if (WhatIsPair(hand).Distinct().ToList().Count == 6 && hand.Distinct().ToList().Count > 6)
-        {
-            
-        }
-        //국사 확인
-        if (IsKokushiMusouWait(hand))
-        {
-            
-        }
-        //if (handState.ContainsKey(41)) return true; canwin에서 확인
-        if (handState.TryGetValue(40, out List<string> hs40))
-        {
-            foreach (string dragon in hs40)
-            {
-                List<string> singleLeft = MakeLeftOverList(hand, dragon);
-                result.AddRange(singleLeft);
-            }
-        }
-
-        if (handState.TryGetValue(32, out var hs32))
-        {
-            foreach (string dragon in hs32)
-            {
-                string[] d = dragon.Split(",");
-                foreach (string tile in d)
-                {
-                    if (tile[0].Equals('h'))
-                    {
-                        result.Add(tile[2].Equals(tile[3]) ? tile[2].ToString() : tile[2..4]);
-                    }
-                }
-            }
-        }
-        //총 11개 타일, 남은 타일 3개 중에 몸통이 될 수 있는 경우가 있으면 true
-        if (handState.TryGetValue(31, out List<string> hs31))
-        {
-            foreach (string dragon in hs31)
-            {
-                List<string> canChi = Huro.MakeCanChiList(MakeLeftOverList(hand, dragon));
-                if (canChi.Any())
-                {
-                    result.AddRange(canChi);
-                }
-            }
-        }
-        return result;
-    }
-
     public static List<string> WhatCanWaitChi(string tile1, string tile2)
     {
         List<string> result = new List<string>();
@@ -580,3 +547,57 @@ public class HandChecker
 }
 //커츠 모두 확인하고 머리 확인하고 슌츠 확인하기
 //2종? 
+
+// public List<string> CanRiichi(List<string> hand, List<string> huroHand)
+// {
+//     List<string> result = new List<string>();
+//     Dictionary<int, List<string>> handState = NowHandState(hand, huroHand);
+//     //치또이츠 확인
+//     //고쳐야함 같은거 3개 있을수도 있어서
+//     if (WhatIsPair(hand).Distinct().ToList().Count == 6 && hand.Distinct().ToList().Count > 6)
+//     {
+//         
+//     }
+//     //국사 확인
+//     if (IsKokushiMusouWait(hand))
+//     {
+//         
+//     }
+//     //if (handState.ContainsKey(41)) return true; canwin에서 확인
+//     if (handState.TryGetValue(40, out List<string> hs40))
+//     {
+//         foreach (string dragon in hs40)
+//         {
+//             List<string> singleLeft = MakeLeftOverList(hand, dragon);
+//             result.AddRange(singleLeft);
+//         }
+//     }
+//
+//     if (handState.TryGetValue(32, out var hs32))
+//     {
+//         foreach (string dragon in hs32)
+//         {
+//             string[] d = dragon.Split(",");
+//             foreach (string tile in d)
+//             {
+//                 if (tile[0].Equals('h'))
+//                 {
+//                     result.Add(tile[2].Equals(tile[3]) ? tile[2].ToString() : tile[2..4]);
+//                 }
+//             }
+//         }
+//     }
+//     //총 11개 타일, 남은 타일 3개 중에 몸통이 될 수 있는 경우가 있으면 true
+//     if (handState.TryGetValue(31, out List<string> hs31))
+//     {
+//         foreach (string dragon in hs31)
+//         {
+//             List<string> canChi = Huro.MakeCanChiList(MakeLeftOverList(hand, dragon));
+//             if (canChi.Any())
+//             {
+//                 result.AddRange(canChi);
+//             }
+//         }
+//     }
+//     return result;
+// }

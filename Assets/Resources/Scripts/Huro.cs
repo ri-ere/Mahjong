@@ -63,10 +63,6 @@ public class Huro : HandChecker
         {
             result.Add(tile);
         }
-        foreach (string tile in MakeCanRonList(hand))
-        {
-            result.Add(tile);
-        }
 
         return result.Distinct().ToList();
     }

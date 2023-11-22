@@ -1,7 +1,9 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ButtonController : MonoBehaviour
 {
+    private GameObject _returnButton;
     private GameObject _chiButton;
     private GameObject _pongButton;
     private GameObject _kanButton;
@@ -12,12 +14,14 @@ public class ButtonController : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
+        _returnButton = GameObject.Find("ReturnButton");
         _chiButton = GameObject.Find("ChiButton");
         _pongButton = GameObject.Find("PongButton");
         _kanButton = GameObject.Find("KanButton");
         _ronButton = GameObject.Find("RonButton");
         _riichiButton = GameObject.Find("RiichiButton");
         _passButton = GameObject.Find("PassButton");
+        _returnButton.SetActive(false);
         _chiButton.SetActive(false);
         _pongButton.SetActive(false);
         _kanButton.SetActive(false);
@@ -27,12 +31,14 @@ public class ButtonController : MonoBehaviour
 
     }
 
-
+    public void ReturnBtnClicked()
+    {
+        SceneManager.LoadScene("StartScene");
+    }
     public void ChiBtnClicked()
     {
         _gamePlay = GameObject.Find("GamePlay(Clone)").GetComponent<GamePlay>();
         _gamePlay.OnClickedChiButton();
-        
     }
     public void PongBtnClicked()
     {
@@ -61,6 +67,10 @@ public class ButtonController : MonoBehaviour
         _gamePlay = GameObject.Find("GamePlay(Clone)").GetComponent<GamePlay>();
         Debug.Log("Pass button clicked");
         _gamePlay.OnClickedPassButton();
+    }
+    public void ReturnBtnActivate()
+    {
+        _returnButton.SetActive(true);
     }
     public void ChiBtnActivate()
     {

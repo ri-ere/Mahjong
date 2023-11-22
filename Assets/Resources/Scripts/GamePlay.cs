@@ -24,6 +24,7 @@ public class GamePlay : MonoBehaviour
     private List<bool> _isRiichi = new List<bool>();//gamestate로 옮기기
     private int _nowPlayer;
     private int _playerNum = 0;
+    private int _ippatsu = 0;
     
     private List<Player> _players = new List<Player>();
     private List<List<string>> _hands = new List<List<string>>();
@@ -89,6 +90,7 @@ public class GamePlay : MonoBehaviour
             else MyUpdate();
         }
         ReadyCalc();
+        _buttonController.ReturnBtnActivate();
     }
     private void MyUpdate()
     {
@@ -120,7 +122,6 @@ public class GamePlay : MonoBehaviour
                 else
                 {
                     _nowTime.text = "";
-                    _userTime = 0;
                     StartCoroutine(NotMyTurnDahai());
                 }
             }
@@ -128,7 +129,15 @@ public class GamePlay : MonoBehaviour
             {
                 if (_tiles.GetTileLeft() <= 0)
                 {
-                    _gameEnd = true;
+                    _winGame = true;
+                    if (Yaku.NagashiMangan(_discardTiles[0]))
+                    {
+                        PointDisplay.NagashiMangan();
+                    }
+                    else
+                    {
+                        PointDisplay.Yuukyoku();
+                    }
                 }
                 else
                 {
@@ -148,13 +157,14 @@ public class GamePlay : MonoBehaviour
                     {
                         if (_isRiichi[0])//리치 했을때
                         {
+                            ++_ippatsu;//일발 확인
                             RiichiTsumoTagChanger();//리치하고 다른거 버리는거 방지용 츠모한거 말고는 태그 변경
                         }
                         else
                         {
                             _nowTime.text = _userTime.ToString();
                         }
-                        if (_handChecker.CanWin(_hands[0], _huroTiles[0], _isRiichi[0]))//승리 가능이면
+                        if (_handChecker.CanWin(_hands[0], _huroTiles[0], _nowTsumoTile,_isRiichi[0], _tiles.GetTileLeft(), _isMyTurn))//승리 가능이면
                         {
                             _buttonController.RonBtnActivate();
                         }
@@ -165,11 +175,11 @@ public class GamePlay : MonoBehaviour
                         }
                         if (_huro.MakeCanShouminKanList(_canHuroTiles[_nowPlayer]).Count != 0)
                         {
-                            _buttonController.KanBtnActivate();
+                            //_buttonController.KanBtnActivate();
                         }
                         if (_huro.MakeCanAnKanList(_hands[_nowPlayer]).Count != 0)
                         {
-                            _buttonController.KanBtnActivate();
+                            //_buttonController.KanBtnActivate();
                         }
                     }
                     else//내턴 아닐때
@@ -232,8 +242,8 @@ public class GamePlay : MonoBehaviour
                         _buttonController.KanBtnActivate();
                         isOn = true;
                     }
-
-                    if (_huro.MakeCanRonList(_hands[0]).Contains(_nowDahaiTile))
+                    
+                    if (_handChecker.CanWin(_hands[0], _huroTiles[0], _nowDahaiTile, _isRiichi[0], _tiles.GetTileLeft(), _isMyTurn))
                     {
                         _buttonController.RonBtnActivate();
                         isOn = true;
@@ -336,18 +346,25 @@ public class GamePlay : MonoBehaviour
     {
         _buttonController.AllBtnDeactivate();
 
-
         _winGame = true;//코루틴 돌아가는거 멈추는 용도
         _isFirstTurn = true;//대기하고 있는 코루틴 업데이트 못하게 하는 용도
         _nowTime.text = "";
-
-        if (_userTime > 1)
+        bool isMenzen = true;
+        foreach (string tiles in _huroTiles[0])
         {
-            _pointCalculator.DoCalc(_hands[0], _huroTiles[0], _nowTsumoTile, _tiles.GetTileLeft(), true);
+            if (tiles[0] != 'a')
+            {
+                isMenzen = false;
+            }
+        }
+
+        if (_canHuro)
+        {
+            _pointCalculator.DoCalc(_hands[0], _huroTiles[0], _canHuroTiles[0], isMenzen, _nowTsumoTile, _tiles.GetTileLeft(), true,_isRiichi[0], _ippatsu);
         }
         else
         {
-            _pointCalculator.DoCalc(_hands[0], _huroTiles[0], _nowDahaiTile, _tiles.GetTileLeft(), false);
+            _pointCalculator.DoCalc(_hands[0], _huroTiles[0], _canHuroTiles[0], isMenzen, _nowDahaiTile, _tiles.GetTileLeft(), false, _isRiichi[0], _ippatsu);
         }
         
     }
@@ -502,9 +519,14 @@ public class GamePlay : MonoBehaviour
         {
             _canHuro = true;
         }
+        //버린 타일로 플레이어가 론 가능한지 확인하는 코드
+        if (_handChecker.CanWin(_hands[0], _huroTiles[0], _nowDahaiTile, _isRiichi[0], _tiles.GetTileLeft(), _isMyTurn))
+        {
+            _canHuro = true;
+        }
     }
     //핸드 위치 변경하는 함수
-    private static List<string> HandArrange(List<string> hand)
+    public static List<string> HandArrange(List<string> hand)
     {
         List<string> sortSequence = new List<string>
         {
@@ -527,14 +549,14 @@ public class GamePlay : MonoBehaviour
         for (int i = 0; i < 4; ++i)
         {
             _hands.Add(_tiles.GetFirstHand());
-            _hands[0] = new List<string>
-            {
-                "p1", "p1", "p1",
-                "p3", "p4", "p5",
-                "s3", "s3",
-                "s4", "s4",
-                "s5", "s5", "s5",
-            };
+            // _hands[0] = new List<string>
+            // {
+            //     "p1", "p1", "p1",
+            //     "p3", "p4", "p5",
+            //     "s3", "s3",
+            //     "s4", "s4",
+            //     "s5", "s5", "s5",
+            // };
             _discardTiles.Add(new List<string>());
             _hands[i] = HandArrange(_hands[i]);//손패 정리
             _discardNums.Add(-1);
