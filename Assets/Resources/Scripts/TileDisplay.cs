@@ -50,7 +50,6 @@ public class TileDisplay : MonoBehaviour
     {
         // TODO: 리치하면 그 줄 더 밀어서 밖으로 나오게 만들어야함
         string userName = "User" + user + "Discard";
-        bool isRiichiLine = false;
         GameObject userDiscard = GameObject.Find(userName);
         userDiscard.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
         float[] xPos = {-0.83f, -0.5f, -0.17f, 0.16f, 0.5f, 0.83f};
@@ -63,19 +62,14 @@ public class TileDisplay : MonoBehaviour
         if (isRiichi)
         {
             //로테이션 z 값 90으로 변경
-            TileSpawner(tile, 0, "Discard", new Vector3(xPos[x] + riichiPosCorrector, yPos[y] + riichiPosCorrector, 0), new Vector3(0.5f, 0.5f, 0), userDiscard);
+            TileSpawner(tile, 0, "Discard", new Vector3(xPos[x], yPos[y] + riichiPosCorrector, 0), new Vector3(0.5f, 0.5f, 0), userDiscard);
+            Transform lastChild = userDiscard.transform.GetChild(userDiscard.transform.childCount - 1);
+            lastChild.transform.localRotation = Quaternion.Euler(0, 0, 90.0f);
         }
         //뒷면이 아니라 표시해야해서 user 0으로 설정
         else TileSpawner(tile, 0, "Discard", new Vector3(xPos[x], yPos[y], 0), new Vector3(0.5f, 0.5f, 0), userDiscard);
         //유저 위치에 맞게 방향 돌리기
         userDiscard.transform.rotation = Quaternion.Euler(new Vector3(0, 0, user * 90));
-    }
-
-    public static void RemoveStolenTile(int user)
-    {
-        Transform discardDeck = GameObject.Find("User" + user + "Discard").transform;
-        Transform tile = discardDeck.GetChild(discardDeck.childCount - 1);
-        Destroy(tile.gameObject);
     }
     public static void DoraDisplay(string tile, int howMany, bool isOpen)
     {
@@ -86,6 +80,12 @@ public class TileDisplay : MonoBehaviour
         //xPos는 전부 같아서 직접 입력
         float[] yPos = {5.33f, 5.99f, 6.65f, 7.31f, 7.97f};
         TileSpawner(tile, isBack, "Dora", new Vector3(yPos[howMany], 4.55f, 0), new Vector3(1f, 1f, 0), dora);
+    }
+    public static void RemoveStolenTile(int user)
+    {
+        Transform discardDeck = GameObject.Find("User" + user + "Discard").transform;
+        Transform tile = discardDeck.GetChild(discardDeck.childCount - 1);
+        Destroy(tile.gameObject);
     }
 
     public static void HuroDisplay(List<string> huroTiles)

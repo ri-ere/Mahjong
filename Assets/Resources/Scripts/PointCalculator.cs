@@ -32,7 +32,7 @@ public class PointCalculator : MonoBehaviour
         _userPointText[2].text = _userPoint[2].ToString();
         _userPointText[3].text = _userPoint[3].ToString();
     }
-    public void DoCalc(List<string> hand, List<string> pattern, string waitType, bool didHuro, int someoneRiichi, int howLong)
+    public void DoCalc(List<string> hand, List<string> patterns, string winTile, int howLong, bool isMyTurn)//string waitType, bool didHuro
     {
         
     }

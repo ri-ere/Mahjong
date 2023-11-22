@@ -21,7 +21,7 @@ public class GamePlay : MonoBehaviour
     private bool _winGame = false;
     private bool _gameEnd = false;//gamestate로 옮기기
     private int _nowWind;//gamestate로 옮기기
-    private List<bool> _isRiichi;//gamestate로 옮기기
+    private List<bool> _isRiichi = new List<bool>();//gamestate로 옮기기
     private int _nowPlayer;
     private int _playerNum = 0;
     
@@ -33,10 +33,13 @@ public class GamePlay : MonoBehaviour
     private List<List<string>> _discardTiles = new List<List<string>>();
     private bool _canHuro = false;
     private bool _huroBtnOn = false;
+    private bool _ronBtnOn = false;
     private List<string> chiList;
+    private List<string> _riichiList;
     private bool _doneHuro = true;
     private bool _haveToDoChi = false;
     private bool _haveToDoKan = false;
+    private bool _nowRiichi = false;
     
     private bool _isMyTurn;
     private int _userTime;
@@ -117,6 +120,7 @@ public class GamePlay : MonoBehaviour
                 else
                 {
                     _nowTime.text = "";
+                    _userTime = 0;
                     StartCoroutine(NotMyTurnDahai());
                 }
             }
@@ -136,21 +140,28 @@ public class GamePlay : MonoBehaviour
                     TileDisplay.TsumoDisplay(_nowTsumoTile, _nowPlayer, _huroTiles[_nowPlayer].Count);//츠모한거 오브젝트 생성
                     _userTime = WaitTime;
                     _isTurnReady = true;
+                    _buttonController.AllBtnDeactivate();
                     
-                    _canHuroTiles[_nowPlayer] = _huro.MyTurnCanHuroList(_hands[_nowPlayer], _canHuroTiles[_nowPlayer]);
+                    if (_isRiichi[_nowPlayer]) _canHuroTiles[_nowPlayer] = _handChecker.FindRiichiRon(_hands[_nowPlayer]);
+                    else _canHuroTiles[_nowPlayer] = _huro.MyTurnCanHuroList(_hands[_nowPlayer], _canHuroTiles[_nowPlayer]);
                     if (_isMyTurn)//내턴일때 후로 가능 타일 확인 츠모승리랑 리치도 확인
                     {
-                        
-                        if (_isRiichi[0])
+                        if (_isRiichi[0])//리치 했을때
                         {
-                            if (_handChecker.CanWin(_hands[0], _huroTiles[0]))
-                            {
-                                _buttonController.RonBtnActivate();
-                            }
+                            RiichiTsumoTagChanger();//리치하고 다른거 버리는거 방지용 츠모한거 말고는 태그 변경
                         }
                         else
                         {
                             _nowTime.text = _userTime.ToString();
+                        }
+                        if (_handChecker.CanWin(_hands[0], _huroTiles[0], _isRiichi[0]))//승리 가능이면
+                        {
+                            _buttonController.RonBtnActivate();
+                        }
+
+                        if (_handChecker.FindRiichiDiscard(_hands[0]).Any() && !_huroTiles[0].Any() && !_isRiichi[0])
+                        {
+                            _buttonController.RiichiBtnActivate();
                         }
                         if (_huro.MakeCanShouminKanList(_canHuroTiles[_nowPlayer]).Count != 0)
                         {
@@ -164,16 +175,38 @@ public class GamePlay : MonoBehaviour
                     else//내턴 아닐때
                     {
                         _nowTime.text = "";
-                        _buttonController.AllBtnDeactivate();
                     }
                 }
             }
         }
         else//내 턴 아닐때 후로 가능한 경우에 실행
         {
-            if (_nowPlayer == 1)//내가 버린 타일이면 끝내기
+            if (_nowPlayer == 1)//내가 버린 타일이면 끝내기, 리치여도 끝내기
             {
                 _canHuro = false;
+            }
+            else if (_isRiichi[0] && !_ronBtnOn)
+            {
+                bool isOn = false;
+                if (_canHuroTiles[0].Contains(_nowDahaiTile))
+                {
+                    _buttonController.RonBtnActivate();
+                    isOn = true;
+                }
+                _ronBtnOn = true;
+                _huroBtnOn = true;
+                if (isOn)//후로 가능
+                {
+                    _huroTime = HuroTime;
+                    _huroBtnOn = true;
+                    _nowTime.text = _huroTime.ToString();
+                }
+                else
+                {
+                    _ronBtnOn = false;
+                    _huroBtnOn = false;
+                    _canHuro = false;
+                }
             }
             else
             {
@@ -225,6 +258,7 @@ public class GamePlay : MonoBehaviour
                     {
                         _canHuro = false;
                         _huroBtnOn = false;
+                        _ronBtnOn = false;
                         _nowTime.text = "";
                     }
                     else
@@ -247,6 +281,7 @@ public class GamePlay : MonoBehaviour
         }
     }
 
+    // ReSharper disable Unity.PerformanceAnalysis
     private void FinishHuro()
     {
         if (_haveToDoChi)
@@ -260,6 +295,61 @@ public class GamePlay : MonoBehaviour
         {
             
         }
+    }
+
+    public void RiichiTsumoTagChanger()
+    {
+        GameObject userHand = GameObject.Find("User0Hand");
+        foreach (var child in userHand.GetComponentsInChildren<Transform>())
+        {
+            string[] tiles = child.name.Split("(");
+            if (!tiles[0].Equals(_nowTsumoTile)) child.tag = "NotRiichi";
+        }
+    }
+    public void OnClickedRiichiButton()
+    {
+        _buttonController.AllBtnDeactivate();
+        _pointCalculator.PlayerRiichiPointChanger(0);
+        _isRiichi[0] = true;
+        _nowRiichi = true;
+        GameObject userHand = GameObject.Find("User0Hand");
+        _riichiList = _handChecker.FindRiichiDiscard(_hands[0]);
+        //확인용 코드
+        Debug.Log(_riichiList.Aggregate("riichi list : ", (current, tile) => current + ("\"" + tile + "\", ")));
+        
+        foreach (var child in userHand.GetComponentsInChildren<Transform>())
+        {
+            string[] tiles = child.name.Split("(");
+            if (_riichiList.Contains(tiles[0]))
+            {
+                Vector3 currentPosition = child.transform.position;
+                currentPosition.y += 0.09f;
+                child.transform.position = currentPosition;
+            }
+            else
+            {
+                child.tag = "NotRiichi";
+            }
+        }
+    }
+    public void OnClickedRonButton()
+    {
+        _buttonController.AllBtnDeactivate();
+
+
+        _winGame = true;//코루틴 돌아가는거 멈추는 용도
+        _isFirstTurn = true;//대기하고 있는 코루틴 업데이트 못하게 하는 용도
+        _nowTime.text = "";
+
+        if (_userTime > 1)
+        {
+            _pointCalculator.DoCalc(_hands[0], _huroTiles[0], _nowTsumoTile, _tiles.GetTileLeft(), true);
+        }
+        else
+        {
+            _pointCalculator.DoCalc(_hands[0], _huroTiles[0], _nowDahaiTile, _tiles.GetTileLeft(), false);
+        }
+        
     }
     public void OnClickedChiButton()
     {
@@ -358,6 +448,14 @@ public class GamePlay : MonoBehaviour
     {
         
     }
+
+    public void OnClickedPassButton()
+    {
+        _canHuro = false;
+        _huroBtnOn = false;
+        _ronBtnOn = false;
+        _nowTime.text = "";
+    }
     private void ReadyCalc()//게임 끝났을때 사용
     {
         // huroHand.Count 했을때 0이 아니면 didHuro true 하면 될듯
@@ -376,19 +474,22 @@ public class GamePlay : MonoBehaviour
     {
         TileDisplay.DoraDisplay(_dora[num], num, true);
     }
-
-
+    
     public void Dahai(string tileName, int user)
     {
         //뒷면엔 클릭할때 이루어지는 상호작용이 없어서 안버려짐
         _nowDahaiTile = tileName;//후로용 변수
+        Debug.Log("dahai : " + _nowDahaiTile);
         _hands[user].RemoveAt(_hands[user].IndexOf(tileName));//손패에서 타일 제거
         _discardTiles[_nowPlayer].Add(tileName);//버린 타일에 추가
-        TileDisplay.DahaiDisplay(tileName, user, ++_discardNums[user], false);
+        TileDisplay.DahaiDisplay(tileName, user, ++_discardNums[user], _nowRiichi);
+        if (_nowRiichi) _nowRiichi = false;//리치한 패 돌리는 용도
         _hands[user] = HandArrange(_hands[user]);//손패 정리
         TileDisplay.HandDisplay(_hands[user], user);
-        
-        _canHuroTiles[_nowPlayer] = _huro.NotMyTurnCanHuroList(_hands[_nowPlayer]);
+
+        if (_isRiichi[_nowPlayer]) _canHuroTiles[_nowPlayer] = _handChecker.FindRiichiRon(_hands[_nowPlayer]);
+        else _canHuroTiles[_nowPlayer] = _huro.NotMyTurnCanHuroList(_hands[_nowPlayer]);
+        Debug.Log(_canHuroTiles[_nowPlayer].Aggregate(_nowPlayer + "can huro List : ", (current, tile) => current + ("\"" + tile + "\", ")));
         
         ++_nowPlayer;
         _nowPlayer %= 4;
@@ -427,7 +528,13 @@ public class GamePlay : MonoBehaviour
         {
             _hands.Add(_tiles.GetFirstHand());
             _hands[0] = new List<string>
-                { "m1", "m1", "m2", "m2", "m3", "m3", "m4", "m4", "m5", "m5", "m6", "m6", "m7" };
+            {
+                "p1", "p1", "p1",
+                "p3", "p4", "p5",
+                "s3", "s3",
+                "s4", "s4",
+                "s5", "s5", "s5",
+            };
             _discardTiles.Add(new List<string>());
             _hands[i] = HandArrange(_hands[i]);//손패 정리
             _discardNums.Add(-1);

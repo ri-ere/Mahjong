@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
+using UnityEngine.PlayerLoop;
 
 public class Huro : HandChecker
 {
@@ -10,57 +12,7 @@ public class Huro : HandChecker
         return result;
     }
 
-    public static List<string> WhatToChi(List<string> hand, string huroTile)
-    {
-        List<string> result = new List<string>();
-        List<string> numbers = (from tmp in hand where tmp.Length >= 2 select tmp[..2]).Distinct().ToList();
-        const int zero = 48;
-        int num = huroTile[1] - zero;
-        char tileId = huroTile[0];
-        string a;
-        string b;
-        switch (num)
-        {
-            case 1:
-                a = tileId + (num + 1).ToString();
-                b = tileId + (num + 2).ToString();
-                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(huroTile + a + b);
-                break;
-            case 2:
-                a = tileId + (num - 1).ToString();
-                b = tileId + (num + 1).ToString();
-                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(a + huroTile + b);
-                a = tileId + (num + 1).ToString();
-                b = tileId + (num + 2).ToString();
-                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(huroTile + a + b);
-                break;
-            case 8:
-                a = tileId + (num - 2).ToString();
-                b = tileId + (num - 1).ToString();
-                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(a + b + huroTile);
-                a = tileId + (num - 1).ToString();
-                b = tileId + (num + 1).ToString();
-                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(a + huroTile + b);
-                break;
-            case 9:
-                a = tileId + (num - 2).ToString();
-                b = tileId + (num - 1).ToString();
-                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(a + b + huroTile);
-                break;
-            default:
-                a = tileId + (num - 2).ToString();
-                b = tileId + (num - 1).ToString();
-                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(a + b + huroTile);
-                a = tileId + (num - 1).ToString();
-                b = tileId + (num + 1).ToString();
-                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(a + huroTile + b);
-                a = tileId + (num + 1).ToString();
-                b = tileId + (num + 2).ToString();
-                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(huroTile + a + b);
-                break;
-        }
-        return result;
-    }
+
     //후로 타일 변경해서 바꿔야함
     public List<string> DoKan(List<string> huroHand, string huroTile, bool isMyTurn)//huroHand 재구축
     {
@@ -179,6 +131,57 @@ public class Huro : HandChecker
                 result.Add(pairs[i]);
                 ++i;
             }
+        }
+        return result;
+    }
+    public static List<string> WhatToChi(List<string> hand, string huroTile)
+    {
+        List<string> result = new List<string>();
+        List<string> numbers = (from tmp in hand where tmp.Length >= 2 select tmp[..2]).Distinct().ToList();
+        const int zero = 48;
+        int num = huroTile[1] - zero;
+        char tileId = huroTile[0];
+        string a;
+        string b;
+        switch (num)
+        {
+            case 1:
+                a = tileId + (num + 1).ToString();
+                b = tileId + (num + 2).ToString();
+                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(huroTile + a + b);
+                break;
+            case 2:
+                a = tileId + (num - 1).ToString();
+                b = tileId + (num + 1).ToString();
+                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(a + huroTile + b);
+                a = tileId + (num + 1).ToString();
+                b = tileId + (num + 2).ToString();
+                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(huroTile + a + b);
+                break;
+            case 8:
+                a = tileId + (num - 2).ToString();
+                b = tileId + (num - 1).ToString();
+                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(a + b + huroTile);
+                a = tileId + (num - 1).ToString();
+                b = tileId + (num + 1).ToString();
+                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(a + huroTile + b);
+                break;
+            case 9:
+                a = tileId + (num - 2).ToString();
+                b = tileId + (num - 1).ToString();
+                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(a + b + huroTile);
+                break;
+            default:
+                a = tileId + (num - 2).ToString();
+                b = tileId + (num - 1).ToString();
+                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(a + b + huroTile);
+                a = tileId + (num - 1).ToString();
+                b = tileId + (num + 1).ToString();
+                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(a + huroTile + b);
+                a = tileId + (num + 1).ToString();
+                b = tileId + (num + 2).ToString();
+                if(numbers.Contains(a) && numbers.Contains(b)) result.Add(huroTile + a + b);
+                break;
         }
         return result;
     }

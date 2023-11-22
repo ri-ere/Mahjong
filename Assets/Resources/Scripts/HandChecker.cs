@@ -4,7 +4,7 @@ using Unity.VisualScripting;
 
 public class HandChecker
 {
-    public bool CanWin(List<string> hand, List<string> huroHand)
+    public bool CanWin(List<string> hand, List<string> huroHand, bool isRiichi)
     {
         Dictionary<int, List<string>> handState = NowHandState(hand, huroHand);
         bool isMenzen = !huroHand.Any();//리스트에 요소가 존재하면 true
@@ -15,21 +15,137 @@ public class HandChecker
         //다른 역 있는지 확인
         if (handState.TryGetValue(41, out List<string> tiles))
         {
+            if (isRiichi) return true;
             foreach (string tile in tiles)
             {
-                if (Yaku.HasYaku(tile, isMenzen)) return true;
+                if (Yaku.HasYaku(hand, huroHand, tile, isMenzen)) return true;
             }
         }
         return false;
     }
-    
+
+    public List<string> FindRiichiRon(List<string> hand)//13개 일때 확인하는거
+    {
+        List<string> result = new List<string>();
+        Dictionary<int, List<string>> handState = NowHandState(hand, new List<string>());//리치라서 후로 핸드가 없음
+        //치또이츠 확인
+        List<string> chitoi = WhatIsPair(hand).Distinct().ToList();
+        List<string> handDistinct = hand.Distinct().ToList();
+        if(chitoi.Count == 6) result.AddRange(handDistinct.Except(chitoi));
+        //국사확인
+        //몸통 4개 머리 0개일때
+        if (handState.TryGetValue(40, out List<string> hs40))
+        {
+            foreach (string dragon in hs40)
+            {
+                List<string> singleLeft = MakeLeftOverList(hand, dragon);
+                result.AddRange(singleLeft);
+            }
+        }    
+        if (handState.TryGetValue(32, out var hs32))
+        {
+            foreach (string dragon in hs32)
+            {
+                string[] bodies = dragon.Split(",");
+                foreach (string body in bodies)
+                {
+                    if (body[0].Equals('h'))
+                    {
+                        if (body[2].Equals(body[3])) result.Add(body[2].ToString());
+                        else result.Add(body[2..4]);
+                    }
+                }
+            }
+        }
+        //총 11개 타일 남은 2개가 슌츠로 만들 수 있어야 가능
+        if (handState.TryGetValue(31, out List<string> hs31))
+        {
+            foreach (string dragon in hs31)
+            {
+                List<string> canChi = Huro.MakeCanChiList(MakeLeftOverList(hand, dragon));
+                if (canChi.Any())
+                {
+                    result.AddRange(canChi);
+                }
+            }
+        }
+        return result.Distinct().ToList();
+    }
+    public List<string> FindRiichiDiscard(List<string> hand)//14개 있어야함 리치니까! 근데 안깡은?
+    {
+        List<string> result = new List<string>();
+        Dictionary<int, List<string>> handState = NowHandState(hand, new List<string>());//리치라서 후로 핸드가 없음
+        //치또이츠 확인
+        List<string> chitoi = WhatIsPair(hand).Distinct().ToList();
+        List<string> handDistinct = hand.Distinct().ToList();
+        if (chitoi.Count == 6 && handDistinct.Count > 6)
+        {
+            if (handDistinct.Count == 7)
+            {
+                List<string> tri = WhatIsTriplet(hand);
+                result.Add(tri[0]);
+            }
+            else if (handDistinct.Count == 8)
+                result.AddRange(handDistinct.Except(chitoi));
+        }
+        //국사확인
+        //몸통 4개, 머리 0개
+        if (handState.TryGetValue(40, out List<string> hs40))
+        {
+            foreach (string dragon in hs40)
+            {
+                List<string> singleLeft = MakeLeftOverList(hand, dragon);
+                List<string> canChiList = new List<string>();
+                if (singleLeft.Count == 2) canChiList = WhatCanWaitChi(singleLeft[0], singleLeft[1]);
+                if (canChiList.Any())
+                {
+                    string[] bodies = dragon.Split(",");
+                    foreach (string body in bodies)
+                    {
+                        if (body[0] == 't')
+                        {
+                            result.Add(body[2].Equals(body[3]) ? body[2].ToString() : body[2..4]);
+                        }
+                    }
+                }
+                result.AddRange(singleLeft);
+            }
+        }
+
+        if (handState.TryGetValue(32, out var hs32))
+        {
+            foreach (string dragon in hs32)
+            {
+                List<string> singleLeft = MakeLeftOverList(hand, dragon);
+                result.AddRange(singleLeft);
+            }
+        }
+        //총 11개 타일, 남은 타일 3개 중에 몸통이 될 수 있는 경우가 있으면 true
+        if (handState.TryGetValue(31, out List<string> hs31))
+        {
+            foreach (string dragon in hs31)
+            {
+                List<string> leftOver = MakeLeftOverList(hand, dragon);
+                if (leftOver.Count > 2)
+                {
+                    List<string> ab = new List<string> { leftOver[0], leftOver[1] };
+                    List<string> bc = new List<string> { leftOver[1], leftOver[2] };
+                    List<string> canChiab = Huro.MakeCanChiList(ab);
+                    List<string> canChibc = Huro.MakeCanChiList(bc);
+                    if (canChibc.Any()) result.Add(leftOver[0]);
+                    if (canChiab.Any()) result.Add(leftOver[2]);
+                }
+            }
+        }
+        return result.Distinct().ToList();
+    }
     public List<string> CanRiichi(List<string> hand, List<string> huroHand)
     {
         List<string> result = new List<string>();
         Dictionary<int, List<string>> handState = NowHandState(hand, huroHand);
         //치또이츠 확인
         //고쳐야함 같은거 3개 있을수도 있어서
-        if (WhatIsPair(hand).Distinct().ToList().Count == 6 && hand.Distinct().ToList().Count == 8)
+        if (WhatIsPair(hand).Distinct().ToList().Count == 6 && hand.Distinct().ToList().Count > 6)
         {
             
         }
@@ -77,47 +193,77 @@ public class HandChecker
         return result;
     }
 
+    public static List<string> WhatCanWaitChi(string tile1, string tile2)
+    {
+        List<string> result = new List<string>();
+        if (tile1.Length < 2 || tile2.Length < 2 || tile1[0] != tile2[0]) return result;
+        const int zero = 48;
+        int num1 = tile1[1] - zero;
+        int num2 = tile2[1] - zero;
+        if (num1 > num2) (num1, num2) = (num2, num1);
+        string tileId = tile1[0].ToString();
+        switch (num2 - num1)
+        {
+            case 0:
+                break;
+            case 1:
+                if (num1 == 1) result.Add(tileId + "3");
+                else if(num2 == 9) result.Add(tileId + "7");
+                else
+                {
+                    result.Add(tileId + (num1 - 1).ToString());
+                    result.Add(tileId + (num2 + 1).ToString());
+                }
+                break;
+            case 2:
+                result.Add(tileId + (num1 + 1).ToString());
+                break;
+        }
+        return result;
+    }
     public List<string> MakeLeftOverList(List<string> tiles, string deleteList)
     {
+        List<string> fakeHand = new List<string>();
+        fakeHand.AddRange(tiles);
         string[] bodies = deleteList.Split(",");
         foreach (string body in bodies)
         {
             switch (body[0])
             {
                 case 's':
-                    tiles.RemoveAt(tiles.IndexOf(body[2..4]));
-                    tiles.RemoveAt(tiles.IndexOf(body[4..6]));
-                    tiles.RemoveAt(tiles.IndexOf(body[6..8]));
+                    fakeHand.RemoveAt(fakeHand.IndexOf(body[2..4]));
+                    fakeHand.RemoveAt(fakeHand.IndexOf(body[4..6]));
+                    fakeHand.RemoveAt(fakeHand.IndexOf(body[6..8]));
                     break;
                 case 't':
                     if (body[2].Equals(body[3]))
                     {
-                        tiles.RemoveAt(tiles.IndexOf(body[2..3]));
-                        tiles.RemoveAt(tiles.IndexOf(body[2..3]));
-                        tiles.RemoveAt(tiles.IndexOf(body[2..3]));
+                        fakeHand.RemoveAt(fakeHand.IndexOf(body[2..3]));
+                        fakeHand.RemoveAt(fakeHand.IndexOf(body[2..3]));
+                        fakeHand.RemoveAt(fakeHand.IndexOf(body[2..3]));
                     }
                     else
                     {
-                        tiles.RemoveAt(tiles.IndexOf(body[2..4]));
-                        tiles.RemoveAt(tiles.IndexOf(body[2..4]));
-                        tiles.RemoveAt(tiles.IndexOf(body[2..4]));
+                        fakeHand.RemoveAt(fakeHand.IndexOf(body[2..4]));
+                        fakeHand.RemoveAt(fakeHand.IndexOf(body[2..4]));
+                        fakeHand.RemoveAt(fakeHand.IndexOf(body[2..4]));
                     }
                     break;
                 case 'h':
                     if (body[2].Equals(body[3]))
                     {
-                        tiles.RemoveAt(tiles.IndexOf(body[2..3]));
-                        tiles.RemoveAt(tiles.IndexOf(body[2..3]));
+                        fakeHand.RemoveAt(fakeHand.IndexOf(body[2..3]));
+                        fakeHand.RemoveAt(fakeHand.IndexOf(body[2..3]));
                     }
                     else
                     {
-                        tiles.RemoveAt(tiles.IndexOf(body[2..4]));
-                        tiles.RemoveAt(tiles.IndexOf(body[2..4]));
+                        fakeHand.RemoveAt(fakeHand.IndexOf(body[2..4]));
+                        fakeHand.RemoveAt(fakeHand.IndexOf(body[2..4]));
                     }
                     break;
             }
         }
-        return tiles;
+        return fakeHand;
     }
 
     public bool IsKokushiMusouWait(List<string> hand)
@@ -248,7 +394,7 @@ public class HandChecker
         {
             if(pair.Length > 1) setListForSingle += "h-" + pair + ",";
             else setListForSingle += "h-" + pair + pair + ",";
-            weightForSingle += 5;
+            weightForSingle += 1;
             for (int i = 0; i < 2; i++) tiles.RemoveAt(tiles.IndexOf(pair));
         }
 

@@ -4,10 +4,13 @@ using Unity.VisualScripting;
 
 public class Yaku : HandChecker
 {
-    public static bool HasYaku(string hand, bool menzen)
+    public static bool HasYaku(List<string> hand, List<string> huroHand, string handStateStr, bool menzen)
     {
+        //hand : 14개 있는거 주르륵 나열되어 있는거
+        //huroHand : 제일 긴거
+        //handStateStr : 짧은거
         List<string> tiles = new List<string>();
-        foreach (string tile in hand.Split(","))
+        foreach (string tile in handStateStr.Split(","))
         {
             
             //if (IsTanyao(tiles)) return true;
