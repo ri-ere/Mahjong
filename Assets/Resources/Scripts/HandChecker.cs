@@ -430,16 +430,15 @@ public class HandChecker
         return pair;
     }
 
-    public
-        List<string> WhatIsSequence(List<string> tiles)
+    public List<string> WhatIsSequence(List<string> tiles)
     {
         List<string> result = new List<string>();
         const int zero = 48; //아스키코드로 "0" == 48
         string[] stack = new string[4];
         string possibilities = FindAllSequence(tiles, 0);
         if (possibilities == "") return result; //가능한 슌츠가 없을때 반환
-
-        string[] possibility = possibilities[..^1].Split(','); // "," 가 하나 더 있어서 마지막에 아무것도 없는 배열이 하나 더 있어서 마지막 "," 제거
+        // "," 가 하나 더 있어서 마지막에 아무것도 없는 배열이 하나 더 있어서 마지막 "," 제거
+        string[] possibility = possibilities[..^1].Split(','); 
         stack[0] = possibility[0];
         for (int i = 1; i < possibility.Length; ++i)
         {
@@ -457,7 +456,6 @@ public class HandChecker
                     result.Add(MakeSequence(input[..^1], j));
                 }
             }
-
             stack[possibility[i][0] - zero] = possibility[i];
         }
 

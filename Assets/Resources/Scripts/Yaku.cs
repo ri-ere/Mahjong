@@ -484,7 +484,18 @@ static bool JunchanTaiyao(List<string> handDragons, List<string> huroTiles)//준
 }
 static bool Ryanpeikou(List<string> handDragons, List<string> huroTiles)//량페코
 {
- 
+    List<string> fakeDragon = new List<string>();
+    fakeDragon.AddRange(handDragons);
+    fakeDragon.AddRange(huroTiles);
+    List<string> sequences = new List<string>();
+    foreach (string dragon in fakeDragon)
+    {
+        if(dragon[0].Equals('s')) sequences.Add(dragon);
+    }
+    if (sequences.Count == 4)
+    {
+        
+    }
     return false;
 }
 //6판
