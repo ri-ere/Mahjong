@@ -5,15 +5,8 @@ using UnityEngine.PlayerLoop;
 
 public class Huro : HandChecker
 {
-    //CanRon()
-    public List<string> MakeCanRonList(List<string> hand)
-    {
-        List<string> result = new List<string>();
-        return result;
-    }
 
 
-    //후로 타일 변경해서 바꿔야함
     public List<string> DoKan(List<string> huroHand, string huroTile, bool isMyTurn)//huroHand 재구축
     {
         List<string> result = new List<string>();
