@@ -18,7 +18,7 @@ public class HandChecker
         }
         hand13.AddRange(fakeHand);
         fakeHand.Add(nowTile);
-        fakeHand = Yaku.HandArranger(fakeHand);
+        // fakeHand = Yaku.HandArranger(fakeHand);
         Dictionary<int, List<string>> handState = NowHandState(fakeHand, huroHand);
 
         bool isMenzen = true;
@@ -30,7 +30,7 @@ public class HandChecker
         //치또이츠 확인
         if (Yaku.Chiitoitsu(hand13, nowTile) && isMenzen) return true;
         //국사무쌍 확인
-        if (Yaku.IsKokushiMusou(hand) && isMenzen) return true;
+        // if (Yaku.IsKokushiMusou(hand) && isMenzen) return true;
         //다른 역 있는지 확인
         if (handState.TryGetValue(41, out List<string> tiles))
         {
@@ -236,7 +236,7 @@ public class HandChecker
 
     public bool IsKokushiMusouWait(List<string> hand)
     {
-        if (Yaku.IsKokushiMusou(hand)) return true;
+        // if (Yaku.IsKokushiMusou(hand)) return true;
         List<string> kokushiMusou = new List<string>
            { "m1", "m9", "p1", "p9", "s1", "s9", "e", "s", "w", "n", "p", "f", "c" };
         List<string> forRiichi = new List<string>();//여기에 들어가는 거에 kokushiMusou안에 없는게 버릴 타일
@@ -434,7 +434,7 @@ public class HandChecker
         string[] stack = new string[4];
         string possibilities = FindAllSequence(tiles, 0);
         if (possibilities == "") return result; //가능한 슌츠가 없을때 반환
-        string[] possibility = possibilities[..^1].Split(',');
+        string[] possibility = possibilities[..^1].Split(','); 
         stack[0] = possibility[0];
         for (int i = 1; i < possibility.Length; ++i)
         {
@@ -448,7 +448,6 @@ public class HandChecker
                     result.Add(MakeSequence(input[..^1], j));
                 }
             }
-
             stack[possibility[i][0] - zero] = possibility[i];
         }
         for (int j = 0; j <= possibility[^1][0] - zero; j++)

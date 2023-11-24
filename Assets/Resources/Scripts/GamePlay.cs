@@ -142,6 +142,7 @@ public class GamePlay : MonoBehaviour
                 else
                 {
                     _nowTsumoTile = _tiles.Tsumo();//타일에서 뽑기
+                    _nowTsumoTile = "s5";
                     _hands[_nowPlayer].Add(_nowTsumoTile);//손패에 추가
                     _hands[_nowPlayer] = HandArrange(_hands[_nowPlayer]);//손패 정리
                     HandCheck(_hands[_nowPlayer], "hand");
@@ -551,14 +552,14 @@ public class GamePlay : MonoBehaviour
             _hands.Add(_tiles.GetFirstHand());
             _hands[0] = new List<string>
             {
-                "c", "s1", "p3",
-                "e", "s1", "m2",
-                "m1", "m3", "e", 
-                "p1", "s1", "e",
-                "p2",
+                "p2", "p2", 
+                "p3", "p4", "p5", 
+                "s3", "s3", "s3",
+                "s4", "s4", "s4",
+                "s5", "s5",
             };
             _discardTiles.Add(new List<string>());
-            _hands[i] = HandArrange(_hands[i]);//손패 정리
+            // _hands[i] = HandArrange(_hands[i]);//손패 정리
             _discardNums.Add(-1);
             _isRiichi.Add(false);
             TileDisplay.HandDisplay(_hands[i], i);
