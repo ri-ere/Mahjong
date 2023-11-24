@@ -526,7 +526,7 @@ public class GamePlay : MonoBehaviour
         }
     }
     //핸드 위치 변경하는 함수
-    public static List<string> HandArrange(List<string> hand)
+    private static List<string> HandArrange(List<string> hand)
     {
         List<string> sortSequence = new List<string>
         {
@@ -549,14 +549,14 @@ public class GamePlay : MonoBehaviour
         for (int i = 0; i < 4; ++i)
         {
             _hands.Add(_tiles.GetFirstHand());
-            // _hands[0] = new List<string>
-            // {
-            //     "p1", "p1", "p1",
-            //     "p3", "p4", "p5",
-            //     "s3", "s3",
-            //     "s4", "s4",
-            //     "s5", "s5", "s5",
-            // };
+            _hands[0] = new List<string>
+            {
+                "c", "s1", "p3",
+                "e", "s1", "m2",
+                "m1", "m3", "e", 
+                "p1", "s1", "e",
+                "p2",
+            };
             _discardTiles.Add(new List<string>());
             _hands[i] = HandArrange(_hands[i]);//손패 정리
             _discardNums.Add(-1);

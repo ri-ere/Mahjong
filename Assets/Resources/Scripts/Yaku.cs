@@ -141,9 +141,6 @@ static bool Lipeikou(List<string> handDragons, List<string> huroTiles)//이페�
             }
         }
     }
-    
-    
-    
     return false;
 }
 //1판
@@ -484,7 +481,24 @@ static bool JunchanTaiyao(List<string> handDragons, List<string> huroTiles)//준
 }
 static bool Ryanpeikou(List<string> handDragons, List<string> huroTiles)//량페코
 {
- 
+    List<string> fakeDragon = new List<string>();
+    List<string> sequences = new List<string>();
+    fakeDragon.AddRange(handDragons);
+    fakeDragon.AddRange(huroTiles);
+    foreach (string dragon in fakeDragon)
+    {
+        if(dragon[0].Equals('s')) sequences.Add(dragon);
+    }
+    if (sequences.Count != 4)
+    {
+        return false;
+    }
+    else
+    {
+        if (Lipeikou(new List<string> { sequences[0] }, new List<string> { sequences[1] }))
+            if (Lipeikou(new List<string> { sequences[2] }, new List<string> { sequences[3] }))
+                return true;
+    }
     return false;
 }
 //6판
@@ -515,18 +529,9 @@ public static int GetBusu(List<string> hand, List<string> handDragons, List<stri
     {
         if (dragon[0].Equals('t'))
         {
-            if (dragon[2].Equals(dragon[3]))
-            {
-                busu += 8;
-            }
-            else if(dragon[3].Equals('1') || dragon[3].Equals('9'))
-            {
-                busu += 8;
-            }
-            else
-            {
-                busu += 4;
-            }
+            if (dragon[2].Equals(dragon[3])) busu += 8;
+            else if(dragon[3].Equals('1') || dragon[3].Equals('9')) busu += 8;
+            else busu += 4;
         }
         if (dragon[0].Equals('h'))
         {
@@ -542,70 +547,32 @@ public static int GetBusu(List<string> hand, List<string> handDragons, List<stri
         switch (dragon[0])
         {
             case 't':
-                if (dragon[2].Equals(dragon[3]))
-                {
-                    busu += 4;
-                }
-                else if(dragon[3].Equals('1') || dragon[3].Equals('9'))
-                {
-                    busu += 4;
-                }
-                else
-                {
-                    busu += 2;
-                }
+                if (dragon[2].Equals(dragon[3])) busu += 4;
+                else if(dragon[3].Equals('1') || dragon[3].Equals('9')) busu += 4;
+                else busu += 2;
                 break;
             case 'd':
-                if (dragon[2].Equals(dragon[3]))
-                {
-                    busu += 8;
-                }
-                else if(dragon[3].Equals('1') || dragon[3].Equals('9'))
-                {
-                    busu += 8;
-                }
-                else
-                {
-                    busu += 4;
-                }
+                if (dragon[2].Equals(dragon[3])) busu += 8;
+                else if(dragon[3].Equals('1') || dragon[3].Equals('9')) busu += 8;
+                else busu += 4;
                 break;
             case 'm':
-                if (dragon[2].Equals(dragon[3]))
-                {
-                    busu += 8;
-                }
-                else if(dragon[3].Equals('1') || dragon[3].Equals('9'))
-                {
-                    busu += 8;
-                }
-                else
-                {
-                    busu += 4;
-                }
+                if (dragon[2].Equals(dragon[3])) busu += 8;
+                else if(dragon[3].Equals('1') || dragon[3].Equals('9')) busu += 8;
+                else busu += 4;
                 break;
             case 'a':
-                if (dragon[2].Equals(dragon[3]))
-                {
-                    busu += 16;
-                }
-                else if(dragon[3].Equals('1') || dragon[3].Equals('9'))
-                {
-                    busu += 16;
-                }
-                else
-                {
-                    busu += 8;
-                }
+                if (dragon[2].Equals(dragon[3])) busu += 16;
+                else if(dragon[3].Equals('1') || dragon[3].Equals('9')) busu += 16;
+                else busu += 8;
                 break;
         }
     }
-
     if (busu % 10 != 0)
     {
         busu /= 10;
         busu = busu * 10 + 10;
     }
-    
     return busu;
 }
 
