@@ -16,7 +16,7 @@ public class GamePlay : MonoBehaviour
     private TextMeshProUGUI _nowTime;
     private ButtonController _buttonController;
     private TextMeshProUGUI _tileLeft;
-    //
+    //옮겨야함
     private bool _oyaWin = false;
     private bool _winGame = false;
     private bool _gameEnd = false;//gamestate로 옮기기
