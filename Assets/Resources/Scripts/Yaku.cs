@@ -586,8 +586,6 @@ public class Yaku : HandChecker
         }
 
 //역만
-
-
 public static int GetBusu(List<string> hand, List<string> handDragons, List<string> huroTiles, List<string> canHuroTiles,
             bool isMyTurn, bool isMenzen)
         {
